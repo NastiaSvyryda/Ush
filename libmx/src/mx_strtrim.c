@@ -1,11 +1,14 @@
 #include "../inc/libmx.h"
 
 char *mx_strtrim(const char *str){
-    int end = mx_strlen(str);
+    int end = 0;
     int start = 0; 
     int a = 0;
+    char *new_str = malloc(sizeof(char));
+    int j = 0;
 
     if (str != NULL){
+        end = mx_strlen(str);
         while(mx_isspace(str[a])){
             start++;
             a++;
@@ -13,12 +16,14 @@ char *mx_strtrim(const char *str){
         while(mx_isspace(str[end-1])){
             end--;
         }
-        char *new_str = mx_strnew(end - start);
-        for(int i = start,j=0; i < end; i++){
+        new_str = mx_realloc(new_str,end - start + 1);
+        for(int i = start; i < end; i++){
             new_str[j++] = str[i];
         }
+        new_str[end - start] = '\0';
         return new_str;
     }
+    mx_strdel(&new_str);
     return NULL;
 }
      

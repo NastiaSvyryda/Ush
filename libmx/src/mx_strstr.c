@@ -5,7 +5,7 @@ char *mx_strstr(const char *haystack, const char *needle){
 
     while(*haystack){
         if(!mx_memcmp(haystack++,needle,n)){
-            return (char*)haystack -1;
+            return (char*) haystack -1;
         }
     }
     return NULL;

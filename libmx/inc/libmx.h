@@ -82,5 +82,7 @@ void mx_pop_front(t_list **head);
 void mx_pop_back(t_list **head);
 t_list *mx_sort_list(t_list *lst, bool (*cmp)(void *, void *));
 void mx_swaps_arr(char **arr, int i, int j);
+void mx_print_error(char *str);
+void mx_free_void_arr(void **arr, int lines);
 
 #endif
