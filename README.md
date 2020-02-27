@@ -50,8 +50,3 @@ descriptive error message is displayed.
 1. <a href="https://github.com/viacheslavpleshkov" target="_blank">Viacheslav Pleshkov</a>
 1. <a href="https://github.com/arni30" target="_blank">Oleksandr Arnopolin</a>
 1. <a href="https://github.com/NastiaSvyryda" target="_blank">Anastasiia Svyryda</a>
-
-
-## License
-
-Collision is an open-sourced software licensed under the [MIT license](LICENSE.md).
