@@ -1,6 +1,6 @@
-#include "../inc/libmx.h"
+#include "libmx.h"
 
-int mx_count_arr_el(char **arr){
+int mx_count_arr_el(char **arr) {
     int counter = 0;
     
     if(arr != NULL){

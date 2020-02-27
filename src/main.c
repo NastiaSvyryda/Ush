@@ -1,29 +1,15 @@
-#include "../inc/ush.h"
+#include "ush.h"
 
-static void cd(char *arr) {
-    if(arr != NULL)
-        chdir(arr);
-    else
-        chdir(MX_PWD());
-}
-
-static void pwd() {
-    char *path = mx_strnew(PATH_MAX);
-
-    path = getwd(path);
-    printf("%s\n", path);
-    mx_strdel(&path);
-}
 
 static void uls(char **args) {
     int args_elem = mx_count_arr_el(args);
     char ** arr = malloc(sizeof(char*) * (args_elem + 1));
-    arr[0] = mx_strdup( "/Users/oarnopolin/Desktop/Ucode/Uls/oarnopolin/uls");
+    arr[0] = mx_strdup( "/bin/ls");
     for (int  i = 1; i < args_elem; i++) {
         arr[i] = mx_strdup(args[i]);
     }
     arr[args_elem] = NULL;
-    execv("/Users/oarnopolin/Desktop/Ucode/Uls/oarnopolin/uls",arr);
+    execv("/bin/ls",arr);
     mx_free_void_arr((void**)arr, args_elem);
 }
 
@@ -81,7 +67,7 @@ static void check_str(char *str, int *status) {
         *status = 0;
     }
     else {
-        mx_print_error("ush: shell deals only with one line user input\n");
+        mx_print_error_basic("ush: shell deals only with one line user input\n");
     }
 }
 
@@ -167,14 +153,21 @@ void sigint () {
 int main() {
     char *str = NULL;
     int status = 0;
+    wchar_t sanya = 128512;
     //status 0 - normal; 1 - pipe; 2 - commsub; 3 - ^C break;
 
     while(1) {
         signal(SIGINT, sigint);
+        mx_print_unicode(sanya++);
+        if (sanya == 128591)
+            sanya = 128512;
+        mx_printstr("\033[0;32;1m");
         mx_printstr("u$h> ");
+        mx_printstr("\33[0m");
         str = process_str(&status);
         executing(&status, str);
         mx_strdel(&str);
 
     }
+    return 0;
 }

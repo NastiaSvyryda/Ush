@@ -1,34 +1,35 @@
-#include "../inc/libmx.h"
+#include "libmx.h"
 
-char *mx_itoa(int number){
-    char *res; 
-    int counter = 1;
-    int j = 0;
-    int len = 1;
+static int get_len_number(int number) {
+    int len = 0;
 
-   
-    int num = number;
-    while(num >= 10 || num <= -10){
-        counter *= 10;
+    for (int i = number; i != 0; i /= 10) 
         len++;
-        num /= 10;
+    if (number <= 0)
+        len++;
+
+    return len;
+}
+
+char *mx_itoa(int number) {
+    int len = 0;
+    int sign = 1;
+    char *mitoa = NULL; 
+
+    len = get_len_number(number);
+    mitoa = mx_strnew(len);   
+    if (number == 0)
+        mitoa[0] = '0';
+    else {
+        if (number < 0) 
+            sign = -1;
+        for (int i = len - 1; i >= 0; i--) {
+            mitoa[i] = (number % 10) * sign + '0';
+            number /= 10;
+        }
+        if (sign == -1) 
+            mitoa[0] = '-';
     }
-    res = mx_strnew(len);
-    if(number == -2147483648){
-        res = "-2147483648";
-        return res;
-    }
-    if (number < 0){
-        number *= -1; 
-        res[0] = '-';
-        j = 1;
-    }
-    while(counter != 0){
-        num = number / counter + '0';
-        number %= counter;
-        counter /= 10;
-        res[j] = num;
-        j++;
-    }
-    return res;
-}  
+    mitoa[len] = '\0';
+    return mitoa;
+}

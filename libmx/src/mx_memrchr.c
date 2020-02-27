@@ -1,12 +1,12 @@
-#include "../inc/libmx.h"
+#include "libmx.h"
 
-void *mx_memrchr(const void *s, int c, size_t n){
-    int i;
-	const char *ss = s;
+void *mx_memrchr(const void *s, int c, size_t n) {
+	unsigned char *ptr = (unsigned char *)s + mx_strlen(s);
 
-	for (i = n-1; i >= 0; i--) {
-	if (ss[i] == (unsigned char)c)
-	    return (void*)(ss + i);
+	while (n--) {
+		if (*ptr == (unsigned char)c)
+			return ptr;
+		ptr--;
 	}
-    return NULL;
+	return NULL;
 }

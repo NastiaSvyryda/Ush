@@ -1,12 +1,17 @@
 #ifndef USH_H
 #define USH_H
-#include "../libmx/inc/libmx.h"
+
+#include "libmx.h"
 #include <limits.h>
 #include <errno.h>
 #include <signal.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <sys/ioctl.h>
+#include <stdio.h>
+#include <string.h>
+
+
 #define MX_TMPDIR() (getenv("TMPDIR"))
 #define MX_XPC_FLAGS() (getenv("XPC_FLAGS"))
 #define MX_APPLE_PUBSUB() (getenv("Apple_PubSub_Socket_Render"))
@@ -28,6 +33,12 @@
 #define MX_OLDPWD() (getenv("OLDPWD"))
 #define MX_HOMEBREW_CACHE() (getenv("HOMEBREW_CACHE"))
 #define MX_HOMEBREW_TEMP() (getenv("HOMEBREW_TEMP"))
+
+typedef enum e_error {
+    ERR_EACCES,
+    ERR_DIR,
+}            t_error;
+
 
 typedef struct s_env {
     char *tmpdir;
@@ -51,11 +62,16 @@ typedef struct s_env {
     char *oldpwd;
     char *homebrew_cache;
     char *homebrew_temp;
-}t_env;
+}              t_env;
 
 typedef struct s_com {
     char *command;
     char **args;
-}t_com;
+}              t_com;
 
-#endif //USH_H
+
+//Pwd
+void pwd();
+//Cd
+void cd(char *arr);
+#endif
