@@ -145,6 +145,15 @@ static void executing(int *status, char *str) {
     }
 }
 
+static void print_prompt(wchar_t *emodji_num) {
+    mx_print_unicode((*emodji_num)++);
+        if (*emodji_num == 128591)
+            *emodji_num = 128512;
+        mx_printstr("\033[0;32;1m");
+        mx_printstr("u$h> ");
+        mx_printstr("\33[0m");
+}
+
 void sigint () {
     //signal(SIGINT, sigint);
     mx_printstr("\n");
@@ -153,17 +162,12 @@ void sigint () {
 int main() {
     char *str = NULL;
     int status = 0;
-    wchar_t sanya = 128512;
+    wchar_t emodji_num = 128512;
     //status 0 - normal; 1 - pipe; 2 - commsub; 3 - ^C break;
 
     while(1) {
         signal(SIGINT, sigint);
-        mx_print_unicode(sanya++);
-        if (sanya == 128591)
-            sanya = 128512;
-        mx_printstr("\033[0;32;1m");
-        mx_printstr("u$h> ");
-        mx_printstr("\33[0m");
+        print_prompt(&emodji_num);
         str = process_str(&status);
         executing(&status, str);
         mx_strdel(&str);
