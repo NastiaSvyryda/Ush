@@ -10,6 +10,10 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
 
 #define MX_TMPDIR() (getenv("TMPDIR"))
@@ -73,5 +77,6 @@ typedef struct s_com {
 //Pwd
 void pwd();
 //Cd
-void cd(char *arr);
+void cd(char **input);
+char *mx_process_input(int *status);
 #endif

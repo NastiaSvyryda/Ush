@@ -15,12 +15,14 @@ OBJ_DIR = obj
 SRC = $(addprefix $(SRC_DIR)/,\
 	builds/cd.c \
 	builds/pwd.c \
+	input/mx_process_input.c \
 	main.c)
 
 OBJ = \
 	cd.o \
 	pwd.o \
-	main.o
+	main.o \
+	mx_process_input.o
 
 CC = clang
 
