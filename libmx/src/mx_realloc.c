@@ -1,4 +1,4 @@
-#include "../inc/libmx.h"
+#include "libmx.h"
 
 void *mx_realloc(void *ptr, size_t size){
    void *new_ptr;
@@ -17,4 +17,3 @@ void *mx_realloc(void *ptr, size_t size){
    else new_ptr = ptr;
    return new_ptr;
 }
-

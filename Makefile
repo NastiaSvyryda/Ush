@@ -1,29 +1,51 @@
-NAME = ush
-SRC = src/main.c
-SRCOB = main.o
-INC = inc/ush.h
-OBJ = obj/main.o
-DIR = obj/
-LIBMX = libmx
+APP_NAME = ush
+
+LIBMXF = libmx
+
+LIB_NAME = libmx.a
+
+INC = \
+inc/ \
+libmx/inc/
+
+SRC_DIR = src
+
+OBJ_DIR = obj
+
+SRC = $(addprefix $(SRC_DIR)/,\
+	builds/cd.c \
+	builds/pwd.c \
+	main.c)
+
+OBJ = \
+	cd.o \
+	pwd.o \
+	main.o
+
+CC = clang
+
 CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic
 
-all: install
+all : install
 
-install:
-	@make -C $(LIBMX)
-	@mkdir -p obj
-	@clang $(CFLAGS) -c $(SRC)
-	@cp $(SRCOB) $(DIR)
-	@clang $(CFLAGS) -o $(NAME) $(OBJ) -L./libmx -lmx
-	@rm -rf $(SRCOB)
+install : libmx/libmx.a uls
 
-uninstall: clean
-	@rm -rf $(NAME)
-	@make uninstall -C $(LIBMX)
+libmx/libmx.a:
+	@make -C $(LIBMXF)
 
-clean:
-	@rm -rf $(SRCOB)
-	@rm -rf $(DIR)
-	@make clean -C $(LIBMX)
+uls : $(SRC) inc/ush.h libmx/libmx.a
+	@$(CC) $(CFLAGS) -c $(SRC) $(foreach d, $(INC), -I $d)
+	@$(CC) $(CFLAGS) $(OBJ) $(LIBMXF)/$(LIB_NAME) -o $(APP_NAME)
+	@printf "\r\33[2K$@ \033[32;1mcreated\033[0m\n"
+	@mkdir -p $(OBJ_DIR)
+	@mv $(OBJ) $(OBJ_DIR)
 
-reinstall: uninstall install
+uninstall : clean
+	@make uninstall -C $(LIBMXF)
+	@rm -rf $(APP_NAME)
+
+clean :
+	@make clean -C $(LIBMXF)
+	@rm -rf $(OBJ_DIR)
+
+reinstall : uninstall install
