@@ -14,16 +14,21 @@ OBJ_DIR = obj
 
 SRC = $(addprefix $(SRC_DIR)/,\
 	builds/cd.c \
+	builds/ls.c \
 	builds/pwd.c \
 	input/mx_process_input.c \
-	main.c)
+	printing/mx_print_prompt.c \
+	main/mx_create_main.c \
+	main/main.c)
 
 OBJ = \
 	cd.o \
+	ls.o \
 	pwd.o \
-	main.o \
-	mx_process_input.o
-
+	mx_process_input.o \
+	mx_print_prompt.o \
+	mx_create_main.o \
+	main.o
 CC = clang
 
 CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic

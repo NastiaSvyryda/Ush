@@ -1,5 +1,5 @@
 #include "ush.h"
 
-void pwd() {
+void pwd(void) {
     printf("%s\n", MX_PWD());
 }
