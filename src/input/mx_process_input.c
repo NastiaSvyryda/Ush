@@ -9,7 +9,12 @@ static void set_non_canonic(struct termios *savetty) {
     }
     tcgetattr (0, &tty);
     *savetty = tty;
-    tty.c_lflag   &= ~(ICANON | ECHO | ISIG);
+    tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
+        | INLCR | IGNCR | ICRNL | IXON);
+    tty.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+    tty.c_cflag &= ~(CSIZE | PARENB);
+    tty.c_cflag |= CS8;
+    tty.c_iflag &= IGNCR;
     tty.c_cc[VMIN] = 1;
     tcsetattr (0, TCSAFLUSH, &tty);
 }
@@ -18,67 +23,95 @@ static void set_canonic(struct termios savetty) {
     tcsetattr (STDIN_FILENO, TCSANOW, &savetty);
 }
 
-static char *enable_noncanonic_backspace(char ch, size_t *top, char *str) {
+static char *enable_noncanonic_backspace(t_event *event, char *str) {
     const char delbuf[] = "\b \b";
     char *ret_str = NULL;
-    switch (ch) {
+    switch (event->input_ch) {
         case 127:
-            if (top) {
-                --(*top);
+            if (event->num_backspace) {
+                --event->num_backspace;
                 write(STDOUT_FILENO, delbuf, strlen(delbuf));
             }
             break;
-        case '\n':
-            ret_str = strndup(str, *top);
+        case '\r':
+            ret_str = strndup(str, event->num_backspace);
+            event->enter = 1;
+            mx_printstr("\n");
             break;
         default:
-            str[(*top)++] = ch;
-            write(STDOUT_FILENO, &ch, sizeof ch);
+            str[event->num_backspace++] = event->input_ch;
+            write(STDOUT_FILENO, &event->input_ch, sizeof event->input_ch);
 
             break;
     }
     return ret_str;
 }
+static void events (t_event *event) {
+//    if (event->input_ch == 10) {
+//        mx_printstr("\n");
+//        event->enter = 1;
+//    }
+    if (event->input_ch == 4) { //^D
+        mx_printstr("\n");
+        exit(0);
+    }
+    else if (event->input_ch == 3) { //^C
+        mx_printstr("\n");
+        event->ctrl_c = 1;
+    }
+
+}
+
+static char *input_ascii(t_event *event, char *str) {
+    char *ret_str = NULL;
+    if (event->input_ch != '\r' && event->input_ch < 32) {
+        events(event);
+    }
+    else {
+        ret_str = enable_noncanonic_backspace(event, str);
+    }
+    return ret_str;
+}
+//static void key_events (t_event *event) {
+//    if (event->input_ch_arr[1])
+//}
+//static void input_non_ascii(t_event *event) {
+//    if (event->input_ch_arr[0] == 27)
+//        key_events(event);
+//}
 
 static char *read_str(char *str) {
-    char ch = '\0';
-    size_t top = 0;
+    t_event *event = (t_event *) malloc(sizeof (t_event));
+    event->num_backspace = 0;
     char *ret_str = NULL;
-    int i = 0;
 
+    event->input_ch_arr = &event->input_ch;
     str = mx_strnew(sizeof (char) * CHAR_MAX/8);
     while (1) {
-        read(0, &ch,4);
-        if (ch != 0 && ch != 67 && ch != 68)
-            ret_str = enable_noncanonic_backspace(ch, &top, str);
-        if(ch == KEYCODE_R){
-            mx_printint(KEYCODE_R);
-        }
-        if(ch == KEYCODE_L){
-            mx_printint(ch);
-        }
-        if  (ch == 4) { //^D
-            mx_printstr("\n");
-            exit(0);
-        }
-        else if (ch == 3) { //^C
-            mx_printstr("\n");
-            mx_strdel(&ret_str);
+        read(0, &event->input_ch, 4);
+        if (event->input_ch <= 127)
+            ret_str = input_ascii(event, str);
+//        else
+//            input_non_ascii(event);
+//        if(event->input_ch == KEYCODE_R){
+//            mx_printint(KEYCODE_R);
+//        }
+//        if(event->input_ch == KEYCODE_L){
+//            mx_printint(event->input_ch);
+//        }
+
+        if(event->enter == 1 || event->ctrl_c == 1) {
             break;
         }
-        else if(ch == '\n') {
-            mx_printchar('\n');
-            break;
-        }
-        i++;
     }
+    mx_strdel(&str);
     if( ret_str == NULL|| ret_str[0] == '\0' )
         return NULL;
     return ret_str;
 }
 
 
-char *mx_process_input(int *status) {// сделать обработку \ и enter перенос строки продолжение ввода
+char *mx_process_input(int *status, t_main *main) {// сделать обработку \ и enter перенос строки продолжение ввода
     // обработка в другом процессе () subshell
     char *str = NULL;
     status++;
@@ -86,6 +119,8 @@ char *mx_process_input(int *status) {// сделать обработку \ и e
 
     set_non_canonic(&savetty);
     str = read_str(str);
+    mx_push_back(&main->history, str);
     set_canonic(savetty);
+
     return str;
 }

@@ -75,6 +75,13 @@ typedef struct s_main {
     int exit_status;
 }              t_main;
 
+typedef struct s_event {
+    int num_backspace;
+    int ctrl_c;
+    int enter;
+    char input_ch;
+    char *input_ch_arr;
+}              t_event;
 //Main
 t_main* mx_create_main(int argc, char **argv);
 int main(int argc, char **argv);
@@ -83,7 +90,7 @@ void pwd(void);
 void cd(char **input);
 void ls(char **args);
 //Input function
-char *mx_process_input(int *status);
+char *mx_process_input(int *status, t_main *main);
 //Parsing function
 //printing function
 void mx_print_prompt(wchar_t *emodji_num);

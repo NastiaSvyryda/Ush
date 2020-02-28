@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     while(1) {
         signal(SIGINT, sigint); 
         mx_print_prompt(&main->emodji_num);
-        main->command = mx_process_input(&status);
+        main->command = mx_process_input(&status , main);
         executing(&status, main->command);
         mx_strdel(&main->command);
     }
