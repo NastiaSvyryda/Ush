@@ -39,6 +39,9 @@ typedef enum e_error {
     ERR_DIR,
 }            t_error;
 
+typedef struct s_command {
+    char **commands;
+}              t_command ;
 
 typedef struct s_env {
     char *tmpdir;
@@ -74,4 +77,5 @@ typedef struct s_com {
 void pwd();
 //Cd
 void cd(char *arr);
+char *mx_process_input(int *status);
 #endif
