@@ -79,7 +79,7 @@ typedef struct s_event {
     int num_backspace;
     int ctrl_c;
     int enter;
-    char input_ch;
+    unsigned char input_ch;
     char *input_ch_arr;
 }              t_event;
 //Main

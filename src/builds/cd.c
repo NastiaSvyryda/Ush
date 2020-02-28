@@ -1,67 +1,7 @@
 #include "ush.h"
 
-static char *find_path(char *pathName, char *file, int flag) {
-    char *p = NULL;
-
-    if (flag == 1) {
-        if (mx_strchr(file, '/') == NULL) {
-            p = mx_strdup("./");
-            p = mx_realloc(p, sizeof (char) * (mx_strlen(file) + 3));
-            p = mx_strcat(p, file);
-        }
-        else
-            p = mx_strdup(file);
-    }
-    else {
-        p = mx_strdup(pathName);
-        p = mx_realloc(p, sizeof (char) * (mx_strlen(p) + 2));
-        if (mx_strcmp(pathName, "/") != 0)
-            p = mx_strcat(p, "/");
-        p = mx_realloc(p, sizeof (char) * (mx_strlen(p) + mx_strlen(file) + 1));
-        p = mx_strcat(p, file);
-    }
-    return p;
-}
-
-static int file_exist(char *file) {
-    struct stat *st = (struct stat*) malloc(sizeof (struct stat));
-    int flag = 0;
-    char *path = find_path(NULL, file, 1);
-
-    if ((lstat(path, st) != -1))
-        flag = 1;
-    free(st);
-    st = NULL;
-    mx_strdel(&path);
-    return flag;
-}
-
-static int cd_errors(char **input) {
-    DIR *dp = NULL;
-
-    if (mx_count_arr_el(input) > 2)
-        fprintf(stderr, "cd: string not in pwd: %s\n", input[1]);
-    for (int i = 1; i < mx_count_arr_el(input); i++) {
-        if (input[i][0] == '-') {
-            if (mx_strcmp(input[i], "-") == 0)
-                return 0;
-        }
-        else if (file_exist(input[i]) == 0)
-            fprintf(stderr, "cd: no such file or directory: %s\n", input[i]);
-        else if ((dp = opendir(input[i])) == NULL)
-            fprintf(stderr, "cd: not a directory: %s\n", input[i]);
-        else {
-            if (dp != NULL)
-                closedir(dp);
-            return 0;
-        }
-    }
-    return 1;
-}
-
 static char *previous_dir(void) {
     char *prev_dir = mx_strdup(MX_PWD());
-
     for (int i = mx_strlen(prev_dir) - 1; i >= 0; i--) {
         if (prev_dir[i] == '/') {
             prev_dir[i] = '\0';
@@ -71,45 +11,125 @@ static char *previous_dir(void) {
     }
     return prev_dir;
 }
-
-static char *handle_value(char *path) {
+static char *handle_path(char *path) {
     char *value = NULL;
     int i = 0;
-
     if (path[0] == '/')
         value = mx_strdup(path);
     else {
         value = mx_strdup(MX_PWD());
         value = mx_realloc(value, mx_strlen(value) + mx_strlen(path) + 2);
-        if (path[0] != '.' && mx_strcmp(path, "-") != 0) {
+        if (mx_strcmp(path, "..") == 0 || mx_strcmp(path, "-") == 0)//redo -
+            value = previous_dir();
+        else if (path[0] != '.') {
             mx_strcat(value, "/");
             mx_strcat(value, path);
         }
-        else if (mx_strcmp(path, ".") != 0 && mx_strcmp(path, "..") != 0 && mx_strcmp(path, "-") != 0) {
+        else if (mx_strcmp(path, ".") != 0) {
             for (; i < mx_strlen(path); i++)
                 value[mx_strlen(value) + i] = path[i + 1];
             value[mx_strlen(value) + i] = '\0';
         }
-        else if (mx_strcmp(path, "..") == 0 || mx_strcmp(path, "-") == 0)
-            value = previous_dir();
     }
     return value;
 }
-
-void cd(char **input) {
-    char *value = NULL;
-    int err = cd_errors(input);
-
-    if (err == 0) {
-        if (input[1] != NULL) {
-            value = handle_value(input[1]);
-            if (chdir(value) != -1) {
-                setenv("PWD", value, 1);
-            }
-        } else {
-            chdir(MX_HOME());
-            setenv("PWD", MX_HOME(), 1);
+static int check_symlink(char *arg, int flag) {
+    struct stat *st = (struct stat*) malloc(sizeof (struct stat));
+    int is_link = 0;
+    char buf[1024];
+    ssize_t len = 0;
+    char *path = arg;
+    lstat(arg, st);
+    //perror("lstat");
+    if ((st->st_mode & S_IFMT) == S_IFLNK) {
+        is_link = 1;
+        if (flag == 2) {
+            //path = handle_path(arg);
+            if ((len = readlink(path, buf, 1024)) == -1)
+                perror("readlink");
+            buf[len] = '\0';
+            mx_strdel(&arg);
+            arg = mx_strnew(mx_strlen(buf) + 1);
+            arg[0] = '/';
+            mx_strcat(arg, buf);
+            //mx_strdel(&path);
         }
-        mx_strdel(&value);
+    }
+    free(st);
+    st = NULL;
+    return is_link;
+}
+static int file_exist(char *path) {
+    struct stat *st = (struct stat*) malloc(sizeof (struct stat));
+    int flag = 0;
+    if ((lstat(path, st) != -1))
+        flag = 1;
+    free(st);
+    st = NULL;
+    return flag;
+}
+static void cd_print_error(char **args, int i, char *path, int len) {
+    if (args[i + 2] != NULL && len > 3)
+        fprintf(stderr, "cd: too many arguments\n");
+    else if (args[i + 1] != NULL)
+        fprintf(stderr, "cd: string not in pwd: %s\n", args[i]);
+    else if (file_exist(path) == 0)//-s links
+        fprintf(stderr, "cd: no such file or directory: %s\n", args[i]);
+    else
+        fprintf(stderr, "cd: not a directory: %s\n", args[i]);
+    mx_strdel(&path);
+}
+static char *parse_cd_args(char **args, int *flag) {// 0 - no; 1 - s(priority); 2 - P; 3 - dir or --
+    char *arg = NULL;
+    DIR *dp = NULL;
+    char *path = NULL;
+    int len = mx_count_arr_el(args);
+    int stop = 0;
+    if (len == 1 || (mx_strcmp(args[1], "--") == 0 && len == 2))
+        arg = mx_strdup(MX_HOME());
+    for (int i = 1; i < len; i++) {
+        if (stop == 0 && (mx_strcmp(args[i], "--") == 0 || mx_strcmp(args[i], "-s") == 0 || mx_strcmp(args[i], "-P") == 0)) {
+            if (mx_strcmp(args[i], "--") == 0)
+                stop = 1;
+            else if (mx_strcmp(args[i], "-s") == 0)
+                *flag = 1;
+            else if (mx_strcmp(args[i], "-P") == 0 && *flag != 1)
+                *flag = 2;
+            continue;
+        }
+        path = handle_path(args[i]);
+        dp = opendir(path);
+        if (dp != NULL && args[i + 1] == NULL) {// . .. - --
+            if (dp != NULL)
+                closedir(dp);
+            arg = mx_strdup(path);
+            stop = 1;
+        }
+        else if (dp == NULL || args[i + 1] != NULL) {
+            if (dp != NULL)
+                closedir(dp);
+            cd_print_error(args, i, path, len);
+            break;
+        }
+        mx_strdel(&path);
+    }
+    return arg;
+}
+//static char *real_symlink(char *arg) {
+//
+//}
+void cd(char **args) {
+    int flag = 0;
+    char *arg = parse_cd_args(args, &flag);
+    int is_link = 0;
+    if (arg != NULL) {
+        is_link = check_symlink(arg, flag);
+        if (flag == 1 && is_link == 1)
+            fprintf(stderr, "cd: not a directory: %s\n", arg);
+        else if (chdir(arg) != -1) {
+            setenv("PWD", arg, 1);
+        } else
+            printf("%s\n",arg);
+        mx_strdel(&arg);
     }
 }
