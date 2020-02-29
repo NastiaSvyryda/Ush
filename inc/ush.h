@@ -49,15 +49,21 @@ typedef enum e_error {
     ERR_DIR,
 }            t_error;
 //Struct
+typedef struct s_queue t_queue;
 typedef struct s_env t_env;
 typedef struct s_process t_process;
 typedef struct s_input t_input;
 typedef struct s_ush t_ush;
 
+struct s_queue {
+    char *data;
+    char operator;
+    struct s_queue *next;
+};
 struct s_env {
     char *key;
     char *value;
-    struct s_env *nect;
+    struct s_env *next;
 };
 
 struct s_process {
@@ -95,6 +101,10 @@ void ls(char **args);
 char *mx_process_input(int *status, t_ush *ush);
 //Parsing function
 void mx_parsing(char *command);
+t_queue *mx_create_queue(void *data, char operation);
+void mx_push_back_queue(t_queue **queue, void *data, char operation);
+int mx_count_queue_operation(char *arr);
+t_queue *mx_insort_t_queue(char *arr, t_queue *arr_queue);
 //Printing function
 void mx_print_prompt(wchar_t *emodji_num);
 //Validations function
