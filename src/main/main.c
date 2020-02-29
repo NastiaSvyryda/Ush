@@ -1,4 +1,4 @@
-#include "ush.h"
+#include <ush.h>
 
 static void foo(char **input) {
     pid_t pid;
@@ -80,14 +80,14 @@ void sigint () {
 int main(int argc, char **argv) {
     //status 0 - normal; 1 - pipe; 2 - commsub; 3 - ^C break;
     int status = 0;
-    t_main *main = mx_create_main(argc, argv);
+    t_ush *ush = mx_create_ush(argc, argv);
 
     while(1) {
         signal(SIGINT, sigint); 
-        mx_print_prompt(&main->emodji_num);
-        main->command = mx_process_input(&status , main);
-        executing(&status, main->command);
-        mx_strdel(&main->command);
+        mx_print_prompt(&ush->emodji_num);
+        ush->command = mx_process_input(&status , main);
+        executing(&status, ush->command);
+        mx_strdel(&ush->command);
     }
     return 0;
 }

@@ -18,7 +18,7 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	builds/pwd.c \
 	input/mx_process_input.c \
 	printing/mx_print_prompt.c \
-	main/mx_create_main.c \
+	main/mx_create_ush.c \
 	main/main.c)
 
 OBJ = \
@@ -27,7 +27,7 @@ OBJ = \
 	pwd.o \
 	mx_process_input.o \
 	mx_print_prompt.o \
-	mx_create_main.o \
+	mx_create_ush.o \
 	main.o
 CC = clang
 

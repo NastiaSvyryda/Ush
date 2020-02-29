@@ -48,24 +48,33 @@ typedef enum e_error {
     ERR_EACCES,
     ERR_DIR,
 }            t_error;
-
-typedef enum e_branch {
-    RIGHT,
-    LEFT
-}            t_branch;
-
 //Struct
-typedef struct s_env {
+typedef struct s_env t_env;
+typedef struct s_process t_process;
+typedef struct s_input t_input;
+typedef struct s_ush t_ush;
+
+struct s_env {
     char *key;
     char *value;
     struct s_env *nect;
-}              t_env;
-typedef struct s_process {
+};
+
+struct s_process {
     char **name;
     pid_t pid;
     int index;
-}              t_process;
-typedef struct s_main {
+};
+
+struct s_input {
+    int num_backspace;
+    int ctrl_c;
+    int enter;
+    unsigned char input_ch;
+    char *input_ch_arr;
+};
+
+struct s_ush {
     int argc;
     char **argv;
     char *command;
@@ -73,26 +82,20 @@ typedef struct s_main {
     t_list *history;
     wchar_t emodji_num;
     int exit_status;
-}              t_main;
+};
 
-typedef struct s_event {
-    int num_backspace;
-    int ctrl_c;
-    int enter;
-    unsigned char input_ch;
-    char *input_ch_arr;
-}              t_event;
-//Main
-t_main* mx_create_main(int argc, char **argv);
+//Main function
+t_ush* mx_create_ush(int argc, char **argv);
 int main(int argc, char **argv);
 //Builds function
 void pwd(void);
 void cd(char **input);
 void ls(char **args);
 //Input function
-char *mx_process_input(int *status, t_main *main);
+char *mx_process_input(int *status, t_ush *ush);
 //Parsing function
-//printing function
+void mx_parsing(char *command);
+//Printing function
 void mx_print_prompt(wchar_t *emodji_num);
 //Validations function
 #endif

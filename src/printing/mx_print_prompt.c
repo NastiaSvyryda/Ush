@@ -1,4 +1,4 @@
-#include "ush.h"
+#include <ush.h>
 
 void mx_print_prompt(wchar_t *emodji_num) {
     mx_print_unicode((*emodji_num)++);

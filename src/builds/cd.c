@@ -1,4 +1,4 @@
-#include "ush.h"
+#include <ush.h>
 
 static char *previous_dir(void) {
     char *prev_dir = mx_strdup(MX_PWD());

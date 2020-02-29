@@ -1,4 +1,4 @@
-#include "ush.h"
+#include <ush.h>
 
 void ls(char **args) {
     int args_elem = mx_count_arr_el(args);
