@@ -77,7 +77,7 @@ void sigint () {
     mx_printstr("\n");
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv){
     //status 0 - normal; 1 - pipe; 2 - commsub; 3 - ^C break;
     int status = 0;
     t_ush *ush = mx_create_ush(argc, argv);

@@ -78,6 +78,9 @@ struct s_input {
     int enter;
     unsigned char input_ch;
     char *input_ch_arr;
+    int len;
+    int i;
+    int left;
 };
 
 struct s_ush {
@@ -99,6 +102,10 @@ void cd(char **input);
 void ls(char **args);
 //Input function
 char *mx_process_input(int *status, t_ush *ush);
+char *mx_input_ascii(t_input *input, char *str);
+void mx_set_non_canonic(struct termios *savetty);
+void set_canonic(struct termios savetty);
+void mx_input_non_ascii(t_input *input, t_ush *ush);
 //Parsing function
 void mx_parsing(char *command);
 t_queue *mx_create_queue(void *data, char operation);

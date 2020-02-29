@@ -17,6 +17,9 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	builds/ls.c \
 	builds/pwd.c \
 	input/mx_process_input.c \
+	input/mx_input_ascii.c \
+	input/mx_input_non_ascii.c \
+	input/mx_set_non_canonic.c \
 	parsing/mx_parsing.c \
 	printing/mx_print_prompt.c \
 	main/mx_create_ush.c \
@@ -27,6 +30,9 @@ OBJ = \
 	ls.o \
 	pwd.o \
 	mx_process_input.o \
+	mx_input_ascii.o \
+	mx_input_non_ascii.o \
+	mx_set_non_canonic.o \
 	mx_print_prompt.o \
 	mx_parsing.o \
 	mx_create_ush.o \
@@ -45,7 +51,7 @@ libmx/libmx.a:
 uls : $(SRC) inc/ush.h libmx/libmx.a
 	@$(CC) $(CFLAGS) -c $(SRC) $(foreach d, $(INC), -I $d)
 	@$(CC) $(CFLAGS) $(OBJ) $(LIBMXF)/$(LIB_NAME) -o $(APP_NAME)
-	@printf "\r\33[2K$@ \033[32;1mcreated\033[0m\n"
+	@printf "\r\33[2Kush \033[32;1mcreated\033[0m\n"
 	@mkdir -p $(OBJ_DIR)
 	@mv $(OBJ) $(OBJ_DIR)
 
