@@ -21,6 +21,10 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	input/mx_input_non_ascii.c \
 	input/mx_set_non_canonic.c \
 	parsing/mx_parsing.c \
+	parsing/mx_count_queue_operation.c \
+	parsing/mx_create_queue.c \
+	parsing/mx_push_back_queue.c \
+	parsing/mx_insort_t_queue.c \
 	printing/mx_print_prompt.c \
 	main/mx_create_ush.c \
 	main/main.c)
@@ -35,6 +39,10 @@ OBJ = \
 	mx_set_non_canonic.o \
 	mx_print_prompt.o \
 	mx_parsing.o \
+	mx_count_queue_operation.o \
+    mx_create_queue.o \
+    mx_push_back_queue.o \
+    mx_insort_t_queue.o \
 	mx_create_ush.o \
 	main.o
 CC = clang
