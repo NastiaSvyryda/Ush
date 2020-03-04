@@ -65,7 +65,7 @@ static char **parse_input(char *str, int *status) {
 static void executing(int *status, char *str) {
     char **input = NULL;
 
-    if (str != NULL && *status != 3) {
+    if (str != NULL) {
         input = parse_input(str, status);
         foo(input);
         mx_free_void_arr((void **)input, mx_count_arr_el(input));
@@ -83,12 +83,29 @@ int main(int argc, char **argv){
     t_ush *ush = mx_create_ush(argc, argv);
 
     while(1) {
-        signal(SIGINT, sigint); 
-        mx_print_prompt(&ush->emodji_num);
-        ush->command = mx_process_input(&status , ush);
+        signal(SIGINT, sigint);
+        mx_print_prompt(ush->emodji_num);
+        ush->command = mx_process_input(ush);
         //mx_parsing(ush->command);
         executing(&status, ush->command);
         mx_strdel(&ush->command);
     }
     return 0;
 }
+
+
+//void delete_char(char *input, int index) {
+//    int i = mx_strlen(input) - index;
+//
+//    input = realloc(input, strlen(input));
+//    for(; i < mx_strlen(input) - 1; i++) {
+//        input[i] = input[i + 1];
+//    }
+//    input[i] = '\0';
+//}
+//
+//int main() {
+//    char *str = mx_strdup("pwd");
+//    delete_char(str, 1);
+//    mx_printstr(str);
+//}

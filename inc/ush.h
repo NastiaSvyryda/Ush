@@ -38,10 +38,10 @@
 #define MX_HOMEBREW_CACHE() (getenv("HOMEBREW_CACHE"))
 #define MX_HOMEBREW_TEMP() (getenv("HOMEBREW_TEMP"))
 
-#define KEYCODE_R 67
-#define KEYCODE_L 68
-#define KEYCODE_U 0x41
-#define KEYCODE_D 0x42
+#define MX_RIGHT_ARROW 67
+#define MX_LEFT_ARROW 68
+#define MX_UP_ARROW 65
+#define MX_DOWN_ARROW 66
 
 //Enum
 typedef enum e_error {
@@ -79,30 +79,48 @@ struct s_input {
     unsigned char input_ch;
     char *input_ch_arr;
     int len;
-    int i;
     int left;
+    int coursor_position;
+    char *command;
+    struct termios savetty;
 };
+
+typedef struct s_dblLinkedNode {
+    void *data;
+    struct s_dblLinkedNode *next;
+    struct s_dblLinkedNode *prev;
+}              t_dblLinkedNode;
+
+typedef struct s_dblLinkedList {
+    t_dblLinkedNode *head;
+    t_dblLinkedNode *tail;
+}               t_dblLinkedList;
+
 
 struct s_ush {
     int argc;
     char **argv;
     char *command;
     t_env *env;
-    t_list *history;
+    t_dblLinkedList *history;
     wchar_t emodji_num;
     int exit_status;
 };
 
 //Main function
 t_ush* mx_create_ush(int argc, char **argv);
-int main(int argc, char **argv);
 //Builds function
 void pwd(void);
 void cd(char **input);
 void ls(char **args);
 //Input function
-char *mx_process_input(int *status, t_ush *ush);
-char *mx_input_ascii(t_input *input, char *str);
+void mx_clear_str();
+void mx_delete_char(t_input *input, int index);
+void mx_insert_char(t_input *input, char sym, int index);
+char *mx_moving_coursor_str(int num_of_moves);
+char *mx_fill_command(t_input *input);
+char *mx_process_input(t_ush *ush);
+char *mx_input_ascii(t_input *input);
 void mx_set_non_canonic(struct termios *savetty);
 void set_canonic(struct termios savetty);
 void mx_input_non_ascii(t_input *input, t_ush *ush);
@@ -113,6 +131,6 @@ void mx_push_back_queue(t_queue **queue, void *data, char operation);
 int mx_count_queue_operation(char *arr);
 t_queue *mx_insort_t_queue(char *arr, t_queue *arr_queue);
 //Printing function
-void mx_print_prompt(wchar_t *emodji_num);
+void mx_print_prompt(wchar_t emodji_num);
 //Validations function
 #endif

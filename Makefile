@@ -20,6 +20,8 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	input/mx_input_ascii.c \
 	input/mx_input_non_ascii.c \
 	input/mx_set_non_canonic.c \
+	input/mx_fill_command.c \
+	input/mx_moving_coursor_str.c \
 	parsing/mx_parsing.c \
 	printing/mx_print_prompt.c \
 	main/mx_create_ush.c \
@@ -33,6 +35,8 @@ OBJ = \
 	mx_input_ascii.o \
 	mx_input_non_ascii.o \
 	mx_set_non_canonic.o \
+	mx_fill_command.o \
+	mx_moving_coursor_str.o \
 	mx_print_prompt.o \
 	mx_parsing.o \
 	mx_create_ush.o \
