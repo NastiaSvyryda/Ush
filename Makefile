@@ -13,9 +13,11 @@ SRC_DIR = src
 OBJ_DIR = obj
 
 SRC = $(addprefix $(SRC_DIR)/,\
-	builds/cd.c \
-	builds/ls.c \
-	builds/pwd.c \
+	builds/mx_cd.c \
+	builds/mx_pwd.c \
+	builds/mx_env.c\
+	builds/mx_export.c\
+	builds/mx_exit.c\
 	input/mx_process_input.c \
 	input/mx_input_ascii.c \
 	input/mx_input_non_ascii.c \
@@ -32,9 +34,11 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	main/main.c)
 
 OBJ = \
-	cd.o \
-	ls.o \
-	pwd.o \
+	mx_cd.o \
+	mx_pwd.o \
+	mx_env.o\
+	mx_export.o\
+	mx_exit.o\
 	mx_process_input.o \
 	mx_input_ascii.o \
 	mx_input_non_ascii.o \
