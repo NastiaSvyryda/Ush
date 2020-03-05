@@ -39,10 +39,10 @@
 #define MX_HOMEBREW_TEMP() (getenv("HOMEBREW_TEMP"))
 #define MX_CUR_EXEC() (getenv("_"))
 
-#define KEYCODE_R 67
-#define KEYCODE_L 68
-#define KEYCODE_U 0x41
-#define KEYCODE_D 0x42
+#define MX_RIGHT_ARROW 67
+#define MX_LEFT_ARROW 68
+#define MX_UP_ARROW 65
+#define MX_DOWN_ARROW 66
 
 #define MX_ENV_US "env: option requires an argument -- %c\nusage: env [-i] [-P utilpath] [-u name]\n"
 #define MX_PWD_ERR "ush: pwd: -%c: invalid option\npwd: usage: pwd [-LP]\n"
@@ -82,40 +82,66 @@ struct s_input {
     int enter;
     unsigned char input_ch;
     char *input_ch_arr;
+    int len;
+    int left;
+    int coursor_position;
+    char *command;
+    struct termios savetty;
 };
+
+typedef struct s_dblLinkedNode {
+    void *data;
+    struct s_dblLinkedNode *next;
+    struct s_dblLinkedNode *prev;
+}              t_dblLinkedNode;
+
+typedef struct s_dblLinkedList {
+    t_dblLinkedNode *head;
+    t_dblLinkedNode *tail;
+}               t_dblLinkedList;
+
 
 struct s_ush {
     int argc;
     char **argv;
     char *command;
     t_env *env;
-    t_list *history;
+    t_dblLinkedList *history;
     wchar_t emodji_num;
     int exit_status;
 };
 
 //Main function
 t_ush* mx_create_ush(int argc, char **argv);
-int main(int argc, char **argv);
+int mx_execute(char **input);
 //Builds function
-void mx_pwd(char **args);
-void mx_cd(char **input);
-void mx_env(char **args);
+int mx_pwd(char **args);
+int mx_cd(char **input);
+int mx_env(char **args);
 int mx_find_flag(char *flags, char *arg);
 int mx_file_exist(char *path);
 int check_symlink(char *arg, int flag, int link);
-void mx_export(char **args);
-void mx_unset(char **args);
-void mx_exit(char **input);
+int mx_export(char **args);
+int mx_unset(char **args);
+int mx_exit(char **input);
 //Input function
-char *mx_process_input(int *status, t_ush *ush);
+void mx_clear_str();
+void mx_delete_char(t_input *input, int index);
+void mx_insert_char(t_input *input, char sym, int index);
+char *mx_moving_coursor_str(int num_of_moves);
+char *mx_fill_command(t_input *input);
+char *mx_process_input(t_ush *ush);
+char *mx_input_ascii(t_input *input);
+void mx_set_non_canonic(struct termios *savetty);
+void set_canonic(struct termios savetty);
+void mx_input_non_ascii(t_input *input, t_ush *ush);
 //Parsing function
-void mx_parsing(char *command);
-t_queue *mx_create_queue(void *data, char operation);
-void mx_push_back_queue(t_queue **queue, void *data, char operation);
-int mx_count_queue_operation(char *arr);
-t_queue *mx_insort_t_queue(char *arr, t_queue *arr_queue);
+t_queue **mx_parsing(char *command);
+int mx_count_queue_operation(const char *arr);
+t_queue *mx_create_queue(char *data, char operation);
+void mx_push_back_queue(t_queue **queue, char *data, char operation);
+t_queue *mx_insort_t_queue(char *arr, t_queue **arr_queue);
 //Printing function
-void mx_print_prompt(wchar_t *emodji_num);
+void mx_print_prompt(wchar_t emodji_num);
 //Validations function
 #endif

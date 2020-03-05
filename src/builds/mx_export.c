@@ -1,6 +1,6 @@
 #include <ush.h>
 
-void mx_export(char **args) {
+int mx_export(char **args) {
     char *name = NULL;
     char *value = NULL;
     int len_n = 0;
@@ -24,13 +24,17 @@ void mx_export(char **args) {
             mx_strdel(&name);
             mx_strdel(&value);
         }
+        return 1;
     }
     //setenv("_", tmp, 1);
+    return 0;
 }
 
-void mx_unset(char **args) {
-    for (int y = 1; y < mx_count_arr_el(args); y++)
+int mx_unset(char **args) {
+    for (int y = 1; y < mx_count_arr_el(args); y++) {
         unsetenv(args[y]);
+    }
+    return 0;
 }
 
 

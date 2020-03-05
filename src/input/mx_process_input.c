@@ -1,164 +1,92 @@
 #include <ush.h>
 
-static void set_non_canonic(struct termios *savetty) {
-    struct termios tty;
 
-    if ( !isatty(0) ) {
-        fprintf (stderr, "stdin not terminal\n");
-        exit (1);
-    }
-    tcgetattr (0, &tty);
-    *savetty = tty;
-    tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
-        | INLCR | IGNCR | ICRNL | IXON);
-    tty.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-    tty.c_cflag &= ~(CSIZE | PARENB);
-    tty.c_cflag |= CS8;
-    tty.c_iflag &= IGNCR;
-    tty.c_cc[VMIN] = 1;
-    tcsetattr (0, TCSAFLUSH, &tty);
+
+t_dblLinkedList *createDblLinkedList() {
+    t_dblLinkedList *tmp = (t_dblLinkedList *) malloc(sizeof(t_dblLinkedList));
+    tmp->head = tmp->tail = NULL;
+    return tmp;
 }
 
-static void set_canonic(struct termios savetty) {
-    tcsetattr (STDIN_FILENO, TCSANOW, &savetty);
-}
-
-static char *enable_noncanonic_backspace(t_input *input, char *str, int *len) {
-    const char delbuf[] = "\b \b";
-    char *ret_str = NULL;
-    switch (input->input_ch) {
-        case 127:
-            if (input->num_backspace && *len > 0) {
-                --input->num_backspace;
-                (*len)--;
-                write(STDOUT_FILENO, delbuf, strlen(delbuf));
-            }
-            break;
-        case '\r':
-            ret_str = strndup(str, input->num_backspace);
-            input->enter = 1;
-            mx_printstr("\n");
-            break;
-        default:
-            str[input->num_backspace++] = input->input_ch;
-            (*len)++;
-            write(STDOUT_FILENO, &input->input_ch, sizeof input->input_ch);
-
-            break;
+void deleteDblLinkedList(struct s_dblLinkedList **list) {
+    t_dblLinkedNode *tmp = (*list)->head;
+    t_dblLinkedNode *next = NULL;
+    while (tmp) {
+        next = tmp->next;
+        free(tmp);
+        tmp = next;
     }
-    return ret_str;
-}
-static void events (t_input *input) {
-//    if (input->input_ch == 10) {
-//        mx_printstr("\n");
-//        input->enter = 1;
-//    }
-    if (input->input_ch == 4) { //^D
-        mx_printstr("\n");
-        exit(0);
-    }
-    else if (input->input_ch == 3) { //^C
-        mx_printstr("\n");
-        input->ctrl_c = 1;
-    }
-
-}
-
-static char *input_ascii(t_input *input, char *str, int *i) {
-    char *ret_str = NULL;
-    if (input->input_ch != '\r' && input->input_ch < 32)
-        events(input);
-    else
-        ret_str = enable_noncanonic_backspace(input, str, i);
-    return ret_str;
+    free(*list);
+    (*list) = NULL;
 }
 
 
-
-static void key_right_left(t_input *input, int *len, int *i) {
-    if (input->input_ch_arr[2] == 67 && *i > 0) { // RIGHT
-
-        (*i)--;
-        mx_printstr("\033[C");
+void pushFront(t_dblLinkedList *list, void *data) {
+    t_dblLinkedNode *tmp = (t_dblLinkedNode *) malloc(sizeof(t_dblLinkedNode));
+    if (tmp == NULL) {
+        exit(1);
     }
-    else if (input->input_ch_arr[2] == 68 && *i < *len - 1) { // LEFT
-        (*i)++;
-        mx_printstr("\033[D");
+    tmp->data = data;
+    tmp->next = list->head;
+    tmp->prev = NULL;
+    if (list->head) {
+        list->head->prev = tmp;
     }
-}
-static void key_up_down(t_input *input, t_ush *ush) {
-    if (input->input_ch_arr[2] == 65) { // UP
-        mx_printstr(ush->history->next->data);
-    }
-    else if (input->input_ch_arr[2] == 66) { // DOWN
-        mx_printstr(ush->history->data);
-    }
-//    else if (input->input_ch_arr[2] == 67) {
-//        mx_printstr("\033[B");
-//    }
-}
+    list->head = tmp;
 
-
-static void input_non_ascii(t_input *input, int *len, int *i, t_ush *ush) {
-    if (input->input_ch_arr[0] == 27) {
-        if ((input->input_ch_arr[2] == 67
-            || input->input_ch_arr[2] == 68)
-            && *len > 0) {
-            key_right_left(input, len, i);
-        }
-        else if (input->input_ch_arr[2] == 65 || input->input_ch_arr[2] == 66)
-            key_up_down(input, ush);
+    if (list->tail == NULL) {
+        list->tail = tmp;
     }
 }
 
 
 
-static char *read_str(char *str, t_ush *ush) {
-    t_input *input = (t_input *) malloc(sizeof (t_input));
+static void init_input(t_input *input) {
     input->num_backspace = 0;
-    char *ret_str = NULL;
-    int len = 1;
-    int i = 0;
-
+    input->len = 1;
+    input->command = mx_strnew(CHAR_MAX);
     input->ctrl_c = 0;
     input->enter = 0;
-    input->input_ch_arr = (char*)&input->input_ch;
-    str = mx_strnew(sizeof (char) * CHAR_MAX / 8);
+    input->left = 0;
+    input->coursor_position = 0;
+    input->input_ch_arr = (char *)&input->input_ch;
+}
+
+static char *read_str(t_ush *ush, t_input *input) {
+    char *ret_str = NULL;
+
+    init_input(input);
     while (1) {
         read(0, &input->input_ch, 4);
-        if (input->input_ch <= 127 && input->input_ch != 27) {
-            ret_str = input_ascii(input, str, &len);
-        }
-        else {
-                input_non_ascii(input, &len, &i, ush);
-        }
-        if(input->enter == 1 || input->ctrl_c == 1) {
+        if (input->input_ch <= 127 && input->input_ch != 27)
+            ret_str = mx_input_ascii(input);
+        else
+                mx_input_non_ascii(input, ush);
+        if (input->enter == 1 || input->ctrl_c == 1)
             break;
-        }
     }
-    mx_strdel(&str);
+    mx_strdel(&input->command);
     free(input);
     input = NULL;
-    if( ret_str == NULL|| ret_str[0] == '\0' )
+    if ( ret_str == NULL|| ret_str[0] == '\0' )
         return NULL;
     return ret_str;
 }
 
 
-char *mx_process_input(int *status, t_ush *ush) {// сделать обработку \ и enter перенос строки продолжение ввода
-    // обработка в другом процессе () subshell
-    char *str = NULL;
-    status++;
-    int history = 0;
-    struct termios savetty;
 
-    set_non_canonic(&savetty);
-    str = read_str(str, ush);
+char *mx_process_input(t_ush *ush) {
+    t_input *input = (t_input *) malloc(sizeof (t_input));
+    ush->history = createDblLinkedList();
+    char *str = NULL;
+    int history = 0;
+
+    mx_set_non_canonic(&input->savetty);
+    str = read_str(ush, input);
     if (str !=  NULL) {
         history++;
-        mx_push_front(&ush->history, str);
+        pushFront(ush->history, str);
     }
-    set_canonic(savetty);
-
+    set_canonic(input->savetty);
     return str;
 }
