@@ -6,7 +6,7 @@ char *mx_strnew(const int size) {
 
     if (size < 0)
         return NULL;
-    memory = (char *) malloc((size + 1) * sizeof(char));
+    memory = (char *)malloc((size + 1) * sizeof(char));
     while (i < size) {
         memory[i] = '\0';
         i++;
