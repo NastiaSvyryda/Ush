@@ -37,11 +37,15 @@
 #define MX_OLDPWD() (getenv("OLDPWD"))
 #define MX_HOMEBREW_CACHE() (getenv("HOMEBREW_CACHE"))
 #define MX_HOMEBREW_TEMP() (getenv("HOMEBREW_TEMP"))
+#define MX_CUR_EXEC() (getenv("_"))
 
 #define KEYCODE_R 67
 #define KEYCODE_L 68
 #define KEYCODE_U 0x41
 #define KEYCODE_D 0x42
+
+#define MX_ENV_US "env: option requires an argument -- %c\nusage: env [-i] [-P utilpath] [-u name]\n"
+#define MX_PWD_ERR "ush: pwd: -%c: invalid option\npwd: usage: pwd [-LP]\n"
 
 //Enum
 typedef enum e_error {
@@ -94,9 +98,15 @@ struct s_ush {
 t_ush* mx_create_ush(int argc, char **argv);
 int main(int argc, char **argv);
 //Builds function
-void pwd(void);
-void cd(char **input);
-void ls(char **args);
+void mx_pwd(char **args);
+void mx_cd(char **input);
+void mx_env(char **args);
+int mx_find_flag(char *flags, char *arg);
+int mx_file_exist(char *path);
+int check_symlink(char *arg, int flag, int link);
+void mx_export(char **args);
+void mx_unset(char **args);
+void mx_exit(char **input);
 //Input function
 char *mx_process_input(int *status, t_ush *ush);
 //Parsing function
