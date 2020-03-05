@@ -125,11 +125,11 @@ void mx_set_non_canonic(struct termios *savetty);
 void set_canonic(struct termios savetty);
 void mx_input_non_ascii(t_input *input, t_ush *ush);
 //Parsing function
-void mx_parsing(char *command);
-t_queue *mx_create_queue(void *data, char operation);
-void mx_push_back_queue(t_queue **queue, void *data, char operation);
-int mx_count_queue_operation(char *arr);
-t_queue *mx_insort_t_queue(char *arr, t_queue *arr_queue);
+t_queue **mx_parsing(char *command);
+int mx_count_queue_operation(const char *arr);
+t_queue *mx_create_queue(char *data, char operation);
+void mx_push_back_queue(t_queue **queue, char *data, char operation);
+t_queue *mx_insort_t_queue(char *arr, t_queue **arr_queue);
 //Printing function
 void mx_print_prompt(wchar_t emodji_num);
 //Validations function

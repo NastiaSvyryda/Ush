@@ -23,6 +23,10 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	input/mx_fill_command.c \
 	input/mx_moving_coursor_str.c \
 	parsing/mx_parsing.c \
+	parsing/mx_count_queue_operation.c \
+	parsing/mx_create_queue.c \
+	parsing/mx_push_back_queue.c \
+	parsing/mx_insort_t_queue.c \
 	printing/mx_print_prompt.c \
 	main/mx_create_ush.c \
 	main/main.c)
@@ -39,6 +43,10 @@ OBJ = \
 	mx_moving_coursor_str.o \
 	mx_print_prompt.o \
 	mx_parsing.o \
+	mx_count_queue_operation.o \
+    mx_create_queue.o \
+    mx_push_back_queue.o \
+    mx_insort_t_queue.o \
 	mx_create_ush.o \
 	main.o
 CC = clang
