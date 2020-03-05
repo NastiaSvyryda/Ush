@@ -1,45 +1,52 @@
 #include <ush.h>
 
+void lst_push_front1(t_dbl_list * lst, t_dbl_node *p) {
+    t_dbl_node* first = lst->first;
 
+    if(lst->last) {
+        first->prev = p;
+        p->next = first;
+    } else {
+        /* p у нас будет первым и единственным на данный момент узлом */
+        lst->last = p;
+        p->next = 0;
+    }
 
-t_dblLinkedList *createDblLinkedList() {
-    t_dblLinkedList *tmp = (t_dblLinkedList *) malloc(sizeof(t_dblLinkedList));
-    tmp->head = tmp->tail = NULL;
-    return tmp;
+    lst->first = p;
+    p->prev = 0;
+
+    ++lst->size;
 }
 
-void deleteDblLinkedList(struct s_dblLinkedList **list) {
-    t_dblLinkedNode *tmp = (*list)->head;
-    t_dblLinkedNode *next = NULL;
-    while (tmp) {
-        next = tmp->next;
-        free(tmp);
-        tmp = next;
+void lst_push_back(t_dbl_list * lst, t_dbl_node * p) {
+    t_dbl_node* last = lst->last;
+
+    if(last) {
+        /* добавляем узел p после узла last */
+        last->next = p;
+        p->prev = last;
+    } else {
+        /* p - первый элемент */
+        lst->first = p;
+        p->prev = 0;
     }
-    free(*list);
-    (*list) = NULL;
+
+    /* p - новый последний элемент */
+
+    lst->last = p;
+    p->next = 0;
+
+    ++lst->size;
 }
 
 
-void pushFront(t_dblLinkedList *list, void *data) {
-    t_dblLinkedNode *tmp = (t_dblLinkedNode *) malloc(sizeof(t_dblLinkedNode));
-    if (tmp == NULL) {
-        exit(1);
-    }
-    tmp->data = data;
-    tmp->next = list->head;
-    tmp->prev = NULL;
-    if (list->head) {
-        list->head->prev = tmp;
-    }
-    list->head = tmp;
 
-    if (list->tail == NULL) {
-        list->tail = tmp;
-    }
+t_dbl_data* make_node(char* n) {
+    t_dbl_data* p = (t_dbl_data *) malloc(sizeof (t_dbl_data));
+    p->data = mx_strdup(n);
+
+    return p;
 }
-
-
 
 static void init_input(t_input *input) {
     input->num_backspace = 0;
@@ -77,17 +84,21 @@ static char *read_str(t_ush *ush, t_input *input) {
 
 char *mx_process_input(t_ush *ush) {
     t_input *input = (t_input *) malloc(sizeof (t_input));
-    ush->history = createDblLinkedList();
     char *str = NULL;
     int history = 0;
-
+    //int get_count = 0;//
     mx_set_non_canonic(&input->savetty);
     str = read_str(ush, input);
-    mx_printstr(str);
     if (str !=  NULL) {
+        lst_push_front1(ush->history, (t_dbl_node *) make_node(str));
         history++;
-        pushFront(ush->history, str);
     }
+    ush->curr_history = ush->history->first;
+//    for(; ush->curr_history != 0; ush->curr_history = ush->curr_history->next) {
+//        get_count++;
+//
+//        printf("element %d: %s\n", get_count, ((t_dbl_data*)ush->curr_history)->data);
+//    }
     set_canonic(input->savetty);
     return str;
 }

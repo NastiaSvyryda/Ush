@@ -85,24 +85,30 @@ struct s_input {
     struct termios savetty;
 };
 
-typedef struct s_dblLinkedNode {
-    void *data;
-    struct s_dblLinkedNode *next;
-    struct s_dblLinkedNode *prev;
-}              t_dblLinkedNode;
+typedef struct s_dbl_node {
+    struct s_dbl_node *next;
+    struct s_dbl_node *prev;
+}              t_dbl_node;
 
-typedef struct s_dblLinkedList {
-    t_dblLinkedNode *head;
-    t_dblLinkedNode *tail;
-}               t_dblLinkedList;
+typedef struct s_dbl_list {
+    t_dbl_node * first;
+    t_dbl_node * last;
+    size_t size;
+}      t_dbl_list;
 
+typedef struct s_dbl_data {
+    t_dbl_node lnk;
+    char* data;
+}              t_dbl_data;
 
 struct s_ush {
     int argc;
     char **argv;
     char *command;
     t_env *env;
-    t_dblLinkedList *history;
+    t_dbl_list *history;
+    t_dbl_node *curr_history;
+    t_dbl_node *tail_history;
     wchar_t emodji_num;
     int exit_status;
 };

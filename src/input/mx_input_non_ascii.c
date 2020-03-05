@@ -16,12 +16,23 @@ static void key_right_left(t_input *input) {
 }
 
 static void key_up_down(t_input *input, t_ush *ush) {
+    //int get_count = 0;
     if (input->input_ch_arr[2] == MX_UP_ARROW) { // UP
-        mx_printstr(ush->history->head->data);
-        //ush->history->data = ush->history->next->data;
+//        ush->curr_history = ush->history->first;
+        if (ush->curr_history != NULL) {
+            mx_clear_str();
+            mx_printstr(((t_dbl_data *) ush->curr_history)->data);
+            ush->curr_history->prev = ush->curr_history;
+            ush->curr_history = ush->curr_history->next;
+
+        }
     }
-    //else if (input->input_ch_arr[2] == MX_DOWN_ARROW) // DOWN
-        //mx_printstr(ush->history->data);
+    else if (input->input_ch_arr[2] == MX_DOWN_ARROW) // DOWN
+        if (ush->curr_history->prev != NULL) {
+            mx_clear_str();
+            mx_printstr(((t_dbl_data *) ush->curr_history->prev)->data);
+
+        }
 }
 
 
