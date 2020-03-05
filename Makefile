@@ -17,6 +17,7 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	builds/ls.c \
 	builds/pwd.c \
 	input/mx_process_input.c \
+<<<<<<< HEAD
 	input/mx_input_ascii.c \
 	input/mx_input_non_ascii.c \
 	input/mx_set_non_canonic.c \
@@ -26,11 +27,15 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	printing/mx_print_prompt.c \
 	main/mx_create_ush.c \
 	main/main.c)
+=======
+	main.c)
+>>>>>>> 3018e9d68a5be56ec1764b16b6bf64d3de00ff7c
 
 OBJ = \
 	cd.o \
 	ls.o \
 	pwd.o \
+<<<<<<< HEAD
 	mx_process_input.o \
 	mx_input_ascii.o \
 	mx_input_non_ascii.o \
@@ -41,6 +46,11 @@ OBJ = \
 	mx_parsing.o \
 	mx_create_ush.o \
 	main.o
+=======
+	main.o \
+	mx_process_input.o
+
+>>>>>>> 3018e9d68a5be56ec1764b16b6bf64d3de00ff7c
 CC = clang
 
 CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic

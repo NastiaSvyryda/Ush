@@ -55,6 +55,7 @@ typedef struct s_process t_process;
 typedef struct s_input t_input;
 typedef struct s_ush t_ush;
 
+<<<<<<< HEAD
 struct s_queue {
     char *data;
     char operator;
@@ -65,6 +66,11 @@ struct s_env {
     char *value;
     struct s_env *next;
 };
+=======
+typedef struct s_command {
+    char **commands;
+}              t_command ;
+>>>>>>> 3018e9d68a5be56ec1764b16b6bf64d3de00ff7c
 
 struct s_process {
     char **name;
@@ -97,6 +103,7 @@ typedef struct s_dblLinkedList {
 }               t_dblLinkedList;
 
 
+<<<<<<< HEAD
 struct s_ush {
     int argc;
     char **argv;
@@ -133,4 +140,11 @@ t_queue *mx_insort_t_queue(char *arr, t_queue *arr_queue);
 //Printing function
 void mx_print_prompt(wchar_t emodji_num);
 //Validations function
+=======
+//Pwd
+void pwd();
+//Cd
+void cd(char *arr);
+char *mx_process_input(int *status);
+>>>>>>> 3018e9d68a5be56ec1764b16b6bf64d3de00ff7c
 #endif
