@@ -87,6 +87,7 @@ struct s_input {
     int coursor_position;
     char *command;
     char *ret_str;
+    int arrow_press;
     struct termios savetty;
 };
 

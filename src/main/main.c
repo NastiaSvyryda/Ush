@@ -432,7 +432,7 @@ int main(int argc, char **argv){
         //mx_parsing(ush->command);
         return_value = executing(&status, ush->command);
         mx_strdel(&ush->command);
-        system("leaks -q ush");
+        //system("leaks -q ush");
     }
     return 0;
 }

@@ -49,6 +49,7 @@ t_dbl_data* make_node(char* n) {
 }
 
 static void init_input(t_input *input) {
+    input->arrow_press = 0;
     input->num_backspace = 0;
     input->len = 1;
     input->command = mx_strnew(CHAR_MAX);

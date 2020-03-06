@@ -40,7 +40,6 @@ static void fill_str(t_input *input) {
 
 char *mx_fill_command(t_input *input) {
     char *ret_str = NULL;
-
     switch (input->input_ch) {
         case 127:
             backspace(input);
@@ -48,6 +47,7 @@ char *mx_fill_command(t_input *input) {
         case '\r':
             input->ret_str = strndup(input->command, input->num_backspace + 1);
              ret_str = mx_strtrim(input->ret_str);
+            mx_strdel(&input->ret_str);
             input->enter = 1;
             mx_printstr("\n");
             break;
@@ -57,5 +57,5 @@ char *mx_fill_command(t_input *input) {
             fill_str(input);
             break;
     }
-    return input->ret_str;
+    return ret_str;
 }

@@ -16,23 +16,28 @@ static void key_right_left(t_input *input) {
 }
 
 static void key_up_down(t_input *input, t_ush *ush) {
-    //int get_count = 0;
+    ;
     if (input->input_ch_arr[2] == MX_UP_ARROW) { // UP
 //        ush->curr_history = ush->history->first;
-        if (ush->curr_history != NULL) {
-            mx_clear_str();
-            mx_printstr(((t_dbl_data *) ush->curr_history)->data);
-            ush->curr_history->prev = ush->curr_history;
-            ush->curr_history = ush->curr_history->next;
-
+        if (ush->history->size > 0) {
+            input->command = mx_strdup(((t_dbl_data *) ush->curr_history)->data);
+            if(ush->curr_history->next != NULL) {
+                ush->curr_history = ush->curr_history->next;
+                input->arrow_press++;
+            }
         }
     }
-    else if (input->input_ch_arr[2] == MX_DOWN_ARROW) // DOWN
-        if (ush->curr_history->prev != NULL) {
-            mx_clear_str();
-            mx_printstr(((t_dbl_data *) ush->curr_history->prev)->data);
-
+    else if (input->input_ch_arr[2] == MX_DOWN_ARROW) { // DOWN
+        if (input->arrow_press > 0) {
+            input->arrow_press--;
+            input->command = mx_strdup(((t_dbl_data *) ush->curr_history->prev)->data);
+            if (ush->curr_history->prev != NULL)
+                ush->curr_history = ush->curr_history->prev;
         }
+    }
+    mx_clear_str();
+    mx_printstr(input->command);
+    input->num_backspace = input->coursor_position = input->len = mx_strlen(input->command);
 }
 
 
