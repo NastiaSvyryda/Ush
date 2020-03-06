@@ -127,21 +127,26 @@ static char *parse_cd_args(char **args, int *flag) {// 0 - no; 1 - s(priority); 
     }
     return arg;
 }
-//static char *real_symlink(char *arg) {
-//
-//}
-void mx_cd(char **args) {
+
+int mx_cd(char **args) {
     int flag = 0;
     char *arg = parse_cd_args(args, &flag);
     int is_link = 0;
+    int return_ = 0;
+
     if (arg != NULL) {
         is_link = check_symlink(arg, flag, 1);
-        if (flag == 2 && is_link == 1)
+        if (flag == 2 && is_link == 1) {
             fprintf(stderr, "cd: not a directory: %s\n", arg);
+            return_ = 1;
+        }
         else if (chdir(arg) != -1) {
             setenv("PWD", arg, 1);
         } else
             printf("%s\n",arg);
         mx_strdel(&arg);
     }
+    else
+        return_ = 1;
+    return  return_;
 }

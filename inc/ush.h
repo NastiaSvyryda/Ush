@@ -120,16 +120,17 @@ struct s_ush {
 
 //Main function
 t_ush* mx_create_ush(int argc, char **argv);
+int mx_execute(char **input);
 //Builds function
-void mx_pwd(char **args);
-void mx_cd(char **input);
-void mx_env(char **args);
+int mx_pwd(char **args);
+int mx_cd(char **input);
+int mx_env(char **args);
 int mx_find_flag(char *flags, char *arg);
 int mx_file_exist(char *path);
 int check_symlink(char *arg, int flag, int link);
-void mx_export(char **args);
-void mx_unset(char **args);
-void mx_exit(char **input);
+int mx_export(char **args);
+int mx_unset(char **args);
+int mx_exit(char **input);
 //Input function
 void mx_clear_str();
 void mx_delete_char(t_input *input, int index);

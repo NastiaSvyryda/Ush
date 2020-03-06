@@ -23,7 +23,7 @@ static void parse_pwd(char **args, int *flag) {
 }
 
 
-void mx_pwd(char **args) {
+int mx_pwd(char **args) {
     int flag = 0;
     char *position = mx_strdup(MX_PWD());
     int is_link = 0;
@@ -34,5 +34,10 @@ void mx_pwd(char **args) {
         printf("%s\n", position);
     else if (flag != 3)
         printf("%s\n", position);
+    else {
+        mx_strdel(&position);
+        return 1;
+    }
     mx_strdel(&position);
+    return 0;
 }

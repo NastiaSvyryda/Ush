@@ -30,6 +30,7 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	parsing/mx_push_back_queue.c \
 	parsing/mx_insort_t_queue.c \
 	printing/mx_print_prompt.c \
+	main/mx_execute.c\
 	main/mx_create_ush.c \
 	main/main.c)
 
@@ -52,6 +53,7 @@ OBJ = \
     mx_push_back_queue.o \
     mx_insort_t_queue.o \
 	mx_create_ush.o \
+	mx_execute.o\
 	main.o
 CC = clang
 

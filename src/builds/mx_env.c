@@ -25,11 +25,12 @@ static char *parse_env_args(char **args, int *flag) {// 0 - no; 1 - s(priority);
     return arg;
 }
 
-void mx_env(char **args) {
+int mx_env(char **args) {
     extern char **environ;
     int flag = 0;
     char *arg = parse_env_args(args, &flag);
     char *temp = NULL;
+    int return_ = 0;
 
     if (mx_count_arr_el(args) == 1 || (flag == 2 && arg == NULL && mx_count_arr_el(args) == 2))
         mx_print_strarr(environ, "\n");
@@ -43,6 +44,9 @@ void mx_env(char **args) {
         }
         mx_strdel(&temp);
     }
+    else
+        return_ = 1;
     mx_strdel(&arg);
+    return return_;
 }
 

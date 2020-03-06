@@ -356,91 +356,6 @@ t_dbl_list* lst_create() {
     return lst;
 }
 
-void mx_ush(char **input) {
-    extern char **environ;
-
-    execve("/Users/asvyryda/Desktop/Ush/ush", input, environ);//change directory
-}
-static int is_builtin(char *command) {
-     char builtins[][10] = {"cd", "pwd", "env", "ush", "export",
-                            "unset", "exit", "which", "echo"};
-     char *low_com = mx_strdup(command);
-     int num = 0;
-
-     for (int i = 0; i < mx_strlen(command); i++)
-         low_com[i] = (char)mx_tolower(low_com[i]);
-     for (int i = 0; i < 9; i++) {
-         if (mx_strcmp(builtins[i], low_com) == 0)
-             num = i + 1;
-     }
-     mx_strdel(&low_com);
-     return num;
-}
-
-static char *coomand_in_path(char *command) {
-    char **path = mx_strsplit(MX_PATH(), ':');
-    char *command_p = NULL;
-    int paths = mx_count_arr_el(path);
-
-    for (int i = 0; i < mx_count_arr_el(path); i++) {
-        command_p = mx_strnew(mx_strlen(command) + mx_strlen(path[i]) + 1);
-        mx_strcpy(command_p, path[i]);
-        command_p = mx_strcat(command_p, "/");
-        command_p = mx_strcat(command_p, command);
-        if (mx_file_exist(command_p))
-            break;
-        mx_strdel(&command_p);
-    }
-    mx_free_void_arr((void**)path, paths);
-    if (command_p == NULL)
-        command_p = mx_strdup(command);
-    //mx_printstr(command_p);
-    return command_p;
-}
-
-static void foo(char **input) {
-    pid_t pid;
-    extern char **environ;
-    errno = 0;
-    int command = is_builtin(input[0]);
-    char *command_p = NULL;
-    char *output = mx_strnew(CHAR_MAX - 1);
-    pid = fork();
-    if (pid != 0) {
-        if (command == 1)
-            mx_cd(input);
-        else if (command == 5)
-            mx_export(input);
-        else if (command == 6)
-            mx_unset(input);
-        else if (command == 7) {
-            mx_exit(input);
-        }
-        wait(NULL);
-    }
-    else {
-        if (command == 2)
-            mx_pwd(input);
-        else if (command == 3)
-            mx_env(input);
-        else if (command == 4)
-            mx_ush(input);
-        else if (command == 0) {
-            command_p = coomand_in_path(input[0]);
-            if (mx_file_exist(command_p)) {
-                int exec = execve(command_p, input, environ);
-                if (exec == -1 && errno == EACCES)
-                    fprintf(stderr, "ush: Permission denied:%s\n", input[0]);
-            }
-            else
-                fprintf(stderr, "ush: %s: command not found\n", input[0]);
-            mx_strdel(&command_p);
-        }
-        mx_strdel(&output);
-        exit(0);
-    }
-}
-
 static int winsize(void) {
     struct winsize wins;
     int err = ioctl(0, TIOCGWINSZ, &wins);//заменить запрет функция
@@ -484,14 +399,15 @@ static char **parse_input(char *str, int *status) {
 }
 
 
-static void executing(int *status, char *str) {
+static int executing(int *status, char *str) {
     char **input = NULL;
-
+    int return_value = 0;
     if (str != NULL) {
         input = parse_input(str, status);
-        foo(input);
+        return_value = mx_execute(input);
         mx_free_void_arr((void **)input, mx_count_arr_el(input));
     }
+    return return_value;
 }
 
 void sigint () {
@@ -505,6 +421,7 @@ int main(int argc, char **argv){
     t_ush *ush = mx_create_ush(argc, argv);
     ush->history = lst_create();
     char *shlvl = mx_itoa(mx_atoi(MX_SHLVL()) + 1);
+    int return_value = 0;
 
     setenv("SHLVL", shlvl, 1);
     mx_strdup(shlvl);
@@ -513,7 +430,7 @@ int main(int argc, char **argv){
         mx_print_prompt(ush->emodji_num);
         ush->command = mx_process_input(ush);
         //mx_parsing(ush->command);
-        executing(&status, ush->command);
+        return_value = executing(&status, ush->command);
         mx_strdel(&ush->command);
         system("leaks -q ush");
     }
