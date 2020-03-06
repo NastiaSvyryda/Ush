@@ -37,11 +37,15 @@
 #define MX_OLDPWD() (getenv("OLDPWD"))
 #define MX_HOMEBREW_CACHE() (getenv("HOMEBREW_CACHE"))
 #define MX_HOMEBREW_TEMP() (getenv("HOMEBREW_TEMP"))
+#define MX_CUR_EXEC() (getenv("_"))
 
 #define MX_RIGHT_ARROW 67
 #define MX_LEFT_ARROW 68
 #define MX_UP_ARROW 65
 #define MX_DOWN_ARROW 66
+
+#define MX_ENV_US "env: option requires an argument -- %c\nusage: env [-i] [-P utilpath] [-u name]\n"
+#define MX_PWD_ERR "ush: pwd: -%c: invalid option\npwd: usage: pwd [-LP]\n"
 
 //Enum
 typedef enum e_error {
@@ -82,6 +86,7 @@ struct s_input {
     int left;
     int coursor_position;
     char *command;
+    char *ret_str;
     struct termios savetty;
 };
 
@@ -116,9 +121,15 @@ struct s_ush {
 //Main function
 t_ush* mx_create_ush(int argc, char **argv);
 //Builds function
-void pwd(void);
-void cd(char **input);
-void ls(char **args);
+void mx_pwd(char **args);
+void mx_cd(char **input);
+void mx_env(char **args);
+int mx_find_flag(char *flags, char *arg);
+int mx_file_exist(char *path);
+int check_symlink(char *arg, int flag, int link);
+void mx_export(char **args);
+void mx_unset(char **args);
+void mx_exit(char **input);
 //Input function
 void mx_clear_str();
 void mx_delete_char(t_input *input, int index);

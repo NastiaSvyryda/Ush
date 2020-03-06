@@ -46,7 +46,8 @@ char *mx_fill_command(t_input *input) {
             backspace(input);
             break;
         case '\r':
-            ret_str = strndup(input->command, input->num_backspace + 1);
+            input->ret_str = strndup(input->command, input->num_backspace + 1);
+             ret_str = mx_strtrim(input->ret_str);
             input->enter = 1;
             mx_printstr("\n");
             break;
@@ -56,5 +57,5 @@ char *mx_fill_command(t_input *input) {
             fill_str(input);
             break;
     }
-    return ret_str;
+    return input->ret_str;
 }
