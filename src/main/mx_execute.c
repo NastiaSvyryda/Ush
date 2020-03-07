@@ -75,7 +75,6 @@ int mx_execute(char **input) {
         wait(NULL);
         close(fd[1]);
         read(fd[0], ret_, 1);
-        mx_printstr(ret_);
         close(fd[0]);
     }
     else {
