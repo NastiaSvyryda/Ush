@@ -54,6 +54,13 @@ int mx_execute(char **input) {
     int command = is_builtin(input[0]);
     char *command_p = coomand_in_path(input[0]);
     char *output = mx_strnew(CHAR_MAX - 1);
+    int fd[2];
+    char *ret_ = mx_strnew(1);
+    if (pipe(fd)==-1)
+    {
+        fprintf(stderr, "Pipe Failed" );
+        return 1;
+    }
     pid = fork();
     if (pid != 0) {
         if (command == 1)
@@ -66,10 +73,15 @@ int mx_execute(char **input) {
             return_ = mx_exit(input);
         }
         wait(NULL);
+        close(fd[1]);
+        read(fd[0], ret_, 1);
+        mx_printstr(ret_);
+        close(fd[0]);
     }
     else {
-        if (command == 2)
+        if (command == 2) {
             return_ = mx_pwd(input);
+        }
         else if (command == 3)
             return_ = mx_env(input);
         else if (command == 4)
@@ -87,10 +99,19 @@ int mx_execute(char **input) {
                 return_ = 1;
             }
         }
+        close(fd[0]);
+        char *ret = mx_itoa(return_);
+        write(fd[1], ret, strlen(ret));
+        mx_strdel(&ret);
+        close(fd[1]);
         exit(0);
     }
     mx_strdel(&command_p);
     mx_strdel(&output);
+    if (mx_atoi(ret_) == 1 || return_ == 1)
+        return_ = 1;
+    else
+        return_ = 0;
     return return_;
 //    int term_fd = open("/dev/tty", O_WRONLY);
 //    if (term_fd == -1)
