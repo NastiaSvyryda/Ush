@@ -404,7 +404,7 @@ static int executing(int *status, char *str) {
     int return_value = 0;
     if (str != NULL) {
         input = parse_input(str, status);
-        return_value = mx_execute(input);
+        return_value = mx_execute(str);
         mx_free_void_arr((void **)input, mx_count_arr_el(input));
     }
     return return_value;
@@ -432,7 +432,7 @@ int main(int argc, char **argv){
         //mx_parsing(ush->command);
         return_value = executing(&status, ush->command);
         mx_strdel(&ush->command);
-        //system("leaks -q ush");
+        system("leaks -q ush");
     }
     return 0;
 }

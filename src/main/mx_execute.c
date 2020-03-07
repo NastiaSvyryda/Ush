@@ -46,11 +46,12 @@ static char *coomand_in_path(char *command) {
     return command_p;
 }
 
-int mx_execute(char **input) {
+int mx_execute(char *str_input) {
     pid_t pid;
     extern char **environ;
     errno = 0;
     int return_ = 0;
+    char **input = mx_strsplit(str_input, ' ');
     int command = is_builtin(input[0]);
     char *command_p = coomand_in_path(input[0]);
     char *output = mx_strnew(CHAR_MAX - 1);
@@ -107,7 +108,10 @@ int mx_execute(char **input) {
     }
     mx_strdel(&command_p);
     mx_strdel(&output);
-    if (mx_atoi(ret_) == 1 || return_ == 1)
+    mx_free_void_arr((void**)input, mx_count_arr_el(input));
+    int retur = mx_atoi(ret_);
+    mx_strdel(&ret_);
+    if (retur == 1 || return_ == 1)
         return_ = 1;
     else
         return_ = 0;

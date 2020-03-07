@@ -121,7 +121,7 @@ struct s_ush {
 
 //Main function
 t_ush* mx_create_ush(int argc, char **argv);
-int mx_execute(char **input);
+int mx_execute(char *str_input);
 //Builds function
 int mx_pwd(char **args);
 int mx_cd(char **input);
