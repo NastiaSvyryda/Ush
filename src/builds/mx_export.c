@@ -24,7 +24,6 @@ int mx_export(char **args) {
             mx_strdel(&name);
             mx_strdel(&value);
         }
-        return 1;
     }
     //setenv("_", tmp, 1);
     return 0;

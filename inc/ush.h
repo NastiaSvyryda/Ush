@@ -54,20 +54,15 @@ typedef enum e_error {
 }            t_error;
 //Struct
 typedef struct s_queue t_queue;
-typedef struct s_env t_env;
 typedef struct s_process t_process;
 typedef struct s_input t_input;
 typedef struct s_ush t_ush;
+typedef struct s_redirect t_redirect;
 
 struct s_queue {
     char *data;
     char operator;
     struct s_queue *next;
-};
-struct s_env {
-    char *key;
-    char *value;
-    struct s_env *next;
 };
 
 struct s_process {
@@ -100,7 +95,7 @@ typedef struct s_dbl_list {
     t_dbl_node * first;
     t_dbl_node * last;
     size_t size;
-}      t_dbl_list;
+}              t_dbl_list;
 
 typedef struct s_dbl_data {
     t_dbl_node lnk;
@@ -111,7 +106,6 @@ struct s_ush {
     int argc;
     char **argv;
     char *command;
-    t_env *env;
     t_dbl_list *history;
     t_dbl_node *curr_history;
     t_dbl_node *tail_history;
@@ -119,9 +113,21 @@ struct s_ush {
     int exit_status;
 };
 
+struct s_redirect {
+    int fd_return[2];
+    int fd_stdout[2];
+    int fd_stderr[2];
+    char *_stdout;
+    char *_stderr;
+};
+
 //Main function
 t_ush* mx_create_ush(int argc, char **argv);
-int mx_execute(char *str_input);
+int mx_execute(char *str_input, int flag_redirect);
+int mx_is_builtin(char *command);
+void mx_write_to_pipe(char *str, int *fd);
+void mx_read_from_pipe(char *str, int len, int *fd);
+char *mx_coomand_in_path(char *command, char *str_path);
 //Builds function
 int mx_pwd(char **args);
 int mx_cd(char **input);

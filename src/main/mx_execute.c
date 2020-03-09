@@ -9,24 +9,8 @@ int mx_ush(char **input) {
         return 1;//change directory
 }
 
-static int is_builtin(char *command) {
-    char builtins[][10] = {"cd", "pwd", "env", "ush", "export",
-                           "unset", "exit", "which", "echo"};
-    char *low_com = mx_strdup(command);
-    int num = 0;
-
-    for (int i = 0; i < mx_strlen(command); i++)
-        low_com[i] = (char)mx_tolower(low_com[i]);
-    for (int i = 0; i < 9; i++) {
-        if (mx_strcmp(builtins[i], low_com) == 0)
-            num = i + 1;
-    }
-    mx_strdel(&low_com);
-    return num;
-}
-
-static char *coomand_in_path(char *command) {
-    char **path = mx_strsplit(MX_PATH(), ':');
+ char *mx_coomand_in_path(char *command, char *str_path) {
+    char **path = mx_strsplit(str_path, ':');
     char *command_p = NULL;
     int paths = mx_count_arr_el(path);
 
@@ -42,80 +26,107 @@ static char *coomand_in_path(char *command) {
     mx_free_void_arr((void**)path, paths);
     if (command_p == NULL)
         command_p = mx_strdup(command);
-    //mx_printstr(command_p);
     return command_p;
 }
 
-int mx_execute(char *str_input) {
-    pid_t pid;
+static void par_execute(int *ret_val, int *fd, char **input) {
+    int command = mx_is_builtin(input[0]);
+    char *ret_str = mx_strnew(1);
+
+    if (command == 1)
+        *ret_val = mx_cd(input);
+    else if (command == 5)
+        *ret_val = mx_export(input);
+    else if (command == 6)
+        *ret_val = mx_unset(input);
+    else if (command == 7)
+        *ret_val = mx_exit(input);
+    wait(NULL);
+    mx_read_from_pipe(ret_str, 1, fd);
+    if (mx_atoi(ret_str) == 1 || *ret_val == 1)
+        *ret_val = 1;
+    else
+        *ret_val = 0;
+    mx_strdel(&ret_str);
+}
+
+static void child_execute(int *ret_val, char **input, int *fd) {//убрать return_pipe
+    int command = mx_is_builtin(input[0]);
+    char *command_p = mx_coomand_in_path(input[0], MX_PATH());
     extern char **environ;
+    char *ret = NULL;
     errno = 0;
+
+    if (command == 2)
+        *ret_val = mx_pwd(input);
+    else if (command == 3)
+        *ret_val = mx_env(input);
+    else if (command == 4)
+        *ret_val = mx_ush(input);
+    else if (command == 0) {
+        if (mx_file_exist(command_p)) {
+            int exec = execve(command_p, input, environ);
+            if (exec == -1 && errno == EACCES) {
+                fprintf(stderr, "ush: Permission denied:%s\n", input[0]);
+                *ret_val = 1;
+            }
+        }
+        else {
+            fprintf(stderr, "ush: %s: command not found\n", input[0]);
+            *ret_val = 1;
+        }
+    }
+    ret = mx_itoa(*ret_val);
+    mx_write_to_pipe(ret, fd);
+    mx_strdel(&ret);
+    mx_strdel(&command_p);
+    exit(0);
+}
+
+static t_redirect *create_redirect(void) {
+    t_redirect *redirect = malloc(sizeof(t_redirect));
+    redirect->_stderr = mx_strnew(1000);
+    redirect->_stdout = mx_strnew(1000);
+    pipe(redirect->fd_return);
+    pipe(redirect->fd_stdout);
+    pipe(redirect->fd_stderr);
+    return redirect;
+}
+
+int mx_execute(char *str_input, int flag_redirect) {
+    pid_t pid;
     int return_ = 0;
     char **input = mx_strsplit(str_input, ' ');
-    int command = is_builtin(input[0]);
-    char *command_p = coomand_in_path(input[0]);
-    char *output = mx_strnew(CHAR_MAX - 1);
-    int fd[2];
-    char *ret_ = mx_strnew(1);
-    if (pipe(fd)==-1)
-    {
-        fprintf(stderr, "Pipe Failed" );
-        return 1;
-    }
+    t_redirect *redirect = create_redirect();
     pid = fork();
     if (pid != 0) {
-        if (command == 1)
-            return_ = mx_cd(input);
-        else if (command == 5)
-            return_ = mx_export(input);
-        else if (command == 6)
-            return_ = mx_unset(input);
-        else if (command == 7) {
-            return_ = mx_exit(input);
+        par_execute(&return_, redirect->fd_return, input);
+        if (flag_redirect == 1)
+            mx_read_from_pipe(redirect->_stdout, 1000, redirect->fd_stdout);
+        mx_read_from_pipe(redirect->_stderr, 1000, redirect->fd_stderr);
+        if (mx_strlen(redirect->_stderr) != 0) {
+            return_ = 1;
+            mx_printstr(redirect->_stderr);
         }
-        wait(NULL);
-        close(fd[1]);
-        read(fd[0], ret_, 1);
-        close(fd[0]);
     }
     else {
-        if (command == 2) {
-            return_ = mx_pwd(input);
+        if (flag_redirect == 1) {
+            if (dup2(redirect->fd_stdout[1], 1) == -1)
+                perror("dup2");
+            close(redirect->fd_stdout[0]);
         }
-        else if (command == 3)
-            return_ = mx_env(input);
-        else if (command == 4)
-            return_ = mx_ush(input);
-        else if (command == 0) {
-            if (mx_file_exist(command_p)) {
-                int exec = execve(command_p, input, environ);
-                if (exec == -1 && errno == EACCES) {
-                    fprintf(stderr, "ush: Permission denied:%s\n", input[0]);
-                    return_ = 1;
-                }
-            }
-            else {
-                fprintf(stderr, "ush: %s: command not found\n", input[0]);
-                return_ = 1;
-            }
-        }
-        close(fd[0]);
-        char *ret = mx_itoa(return_);
-        write(fd[1], ret, strlen(ret));
-        mx_strdel(&ret);
-        close(fd[1]);
-        exit(0);
+        if (dup2(redirect->fd_stderr[1], 2) == -1)
+            perror("dup2");
+        close(redirect->fd_stderr[1]);
+        child_execute(&return_, input, redirect->fd_return);
     }
-    mx_strdel(&command_p);
-    mx_strdel(&output);
+    mx_strdel(&redirect->_stderr);
+    mx_strdel(&redirect->_stdout);
+    free(redirect);
     mx_free_void_arr((void**)input, mx_count_arr_el(input));
-    int retur = mx_atoi(ret_);
-    mx_strdel(&ret_);
-    if (retur == 1 || return_ == 1)
-        return_ = 1;
-    else
-        return_ = 0;
     return return_;
+}
+
 //    int term_fd = open("/dev/tty", O_WRONLY);
 //    if (term_fd == -1)
 //        perror("open");
@@ -129,6 +140,4 @@ int mx_execute(char *str_input) {
 //        mx_printchar(ch);
 //    mx_printchar('\n');
 //    close(myfile);
-
-}
 
