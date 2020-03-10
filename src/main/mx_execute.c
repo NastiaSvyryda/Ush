@@ -1,9 +1,12 @@
 #include <ush.h>
 
-int mx_ush(char **input) {
+int mx_ush(char **input, char *ush_path) {
     extern char **environ;
 
-    if (execve("/Users/asvyryda/Desktop/Ush/ush", input, environ) != -1)
+    //mx_printstr(ush_path);
+    mx_strdel(&input[0]);
+    input[0] = mx_strdup(ush_path);
+    if (execve(ush_path, input, environ) != -1)
         return 0;
     else
         return 1;//change directory
@@ -50,7 +53,7 @@ static void par_execute(int *ret_val, int *fd, char **input) {
     mx_strdel(&ret_str);
 }
 
-static void child_execute(int *ret_val, char **input, int *fd) {//убрать return_pipe
+static void child_execute(int *ret_val, char **input, int *fd, char *ush_path) {//убрать return_pipe
     int command = mx_is_builtin(input[0]);
     char *command_p = mx_coomand_in_path(input[0], MX_PATH());
     extern char **environ;
@@ -62,7 +65,7 @@ static void child_execute(int *ret_val, char **input, int *fd) {//убрать r
     else if (command == 3)
         *ret_val = mx_env(input);
     else if (command == 4)
-        *ret_val = mx_ush(input);
+        *ret_val = mx_ush(input, ush_path);
     else if (command == 0) {
         if (mx_file_exist(command_p)) {
             int exec = execve(command_p, input, environ);
@@ -93,7 +96,7 @@ static t_redirect *create_redirect(void) {
     return redirect;
 }
 
-int mx_execute(char *str_input, int flag_redirect) {
+int mx_execute(char *str_input, int flag_redirect, char *ush_path) {
     pid_t pid;
     int return_ = 0;
     char **input = mx_strsplit(str_input, ' ');
@@ -118,7 +121,7 @@ int mx_execute(char *str_input, int flag_redirect) {
         if (dup2(redirect->fd_stderr[1], 2) == -1)
             perror("dup2");
         close(redirect->fd_stderr[1]);
-        child_execute(&return_, input, redirect->fd_return);
+        child_execute(&return_, input, redirect->fd_return, ush_path);
     }
     mx_strdel(&redirect->_stderr);
     mx_strdel(&redirect->_stdout);

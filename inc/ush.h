@@ -123,7 +123,7 @@ struct s_redirect {
 
 //Main function
 t_ush* mx_create_ush(int argc, char **argv);
-int mx_execute(char *str_input, int flag_redirect);
+int mx_execute(char *str_input, int flag_redirect, char *ush_path);
 int mx_is_builtin(char *command);
 void mx_write_to_pipe(char *str, int *fd);
 void mx_read_from_pipe(char *str, int len, int *fd);
