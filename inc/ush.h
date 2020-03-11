@@ -44,8 +44,11 @@
 #define MX_UP_ARROW 65
 #define MX_DOWN_ARROW 66
 
-#define MX_ENV_US "env: option requires an argument -- %c\nusage: env [-i] [-P utilpath] [-u name]\n"
+#define MX_ENV_US "env: option requires an argument -- %c\nusage: env [-i] \
+[-P utilpath] [-u name]\n           [name=value ...] [utility [argument ...]]\n"
 #define MX_PWD_ERR "ush: pwd: -%c: invalid option\npwd: usage: pwd [-LP]\n"
+#define MX_ENV_IL "env: illegal option -- %c\nusage: env [-iv] [-P utilpath] \
+[-u name]\n           [name=value ...] [utility [argument ...]]\n"
 
 //Enum
 typedef enum e_error {
@@ -58,6 +61,7 @@ typedef struct s_process t_process;
 typedef struct s_input t_input;
 typedef struct s_ush t_ush;
 typedef struct s_redirect t_redirect;
+typedef struct s_env t_env;
 
 struct s_queue {
     char *data;
@@ -84,6 +88,13 @@ struct s_input {
     char *ret_str;
     int arrow_press;
     struct termios savetty;
+};
+
+struct  s_env {
+    int flag;
+    char *alt_path;
+    char *comm;
+    char **env_var;
 };
 
 typedef struct s_dbl_node {

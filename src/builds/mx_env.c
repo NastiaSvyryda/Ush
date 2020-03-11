@@ -1,52 +1,75 @@
 #include <ush.h>
 
-static char *parse_env_args(char **args, int *flag) {// 0 - no; 1 - s(priority); 2 - P; 3 - dir or --
-    char *arg = NULL;
+static t_env *parse_env_args(char **args) {// 0 - no; 1 - s(priority); 2 - P; 3 - dir or --
+    t_env *env = malloc(sizeof(t_env));
     int len = mx_count_arr_el(args);
+    char *temp = NULL;
+    extern char **environ;
 
+    env->flag = 0;
+    env->comm = NULL;
     for (int i = 1; i < len; i++) {
         if (mx_strcmp(args[i], "--") == 0)
-            *flag = 4;
-        if ((*flag != mx_find_flag("iuP", args[i])) && args[i][0] == '-') {
-            *flag = mx_find_flag("iuP", args[i]);
+            env->flag = 4;
+        if (args[i][0] == '-') {
+            if (mx_find_flag("Piu", args[i]) == 0) {
+                fprintf(stderr, MX_ENV_IL, args[i][1]);
+                break;
+            }
+            else if (mx_find_flag("Piu", args[i]) < 3 && env->flag == 0 && args[i + 1] == NULL) {
+                fprintf(stderr, MX_ENV_US, args[i][1]);
+                break;
+            }
+            else if (mx_find_flag("Piu", args[i]) > env->flag) {
+                env->flag = mx_find_flag("Piu", args[i]);
+                continue;
+            }
             continue;
         }
-        if(mx_file_exist(args[i]) != 1 && (*flag != 2 || i > 2)) {
-            if (mx_strcmp(args[i], "-u") == 0)
-                fprintf(stderr, MX_ENV_US, args[i][1]);
-            else
-                fprintf(stderr, "env: %s: No such file or directory\n", args[i]);
+        if(mx_file_exist(args[i]) != 1 && (env->flag != 3 || i > 2)) {
+            fprintf(stderr, "env: %s: No such file or directory\n", args[i]);
+            break;
         }
-        else if(mx_file_exist(args[i]) == 1 && (*flag != 2 || i > 2))
+        else if(mx_file_exist(args[i]) == 1 && (env->flag != 3 || i > 2) && env->flag !=1) {
             fprintf(stderr, "env: %s: Permission denied\n", args[i]);
-        else if (args[i + 1] == NULL)
-            arg = mx_strdup(args[i]);
+            break;
+        }
+        else if (args[i + 1] == NULL && env->flag == 3) {
+            env->env_var = malloc(sizeof(char*));
+            temp = mx_strjoin(args[i], "=");
+            for (int i = 0, y = 0; environ[i]!= NULL; i++) {
+                if(strstr(environ[i], temp) == NULL) {
+                    //realloc
+                    env->env_var[y] = mx_strdup(environ[i]);
+                    y++;
+                }
+            }
+            mx_strdel(&temp);
+        }
     }
-    return arg;
+    return env;
 }
 
 int mx_env(char **args) {
-    extern char **environ;
-    int flag = 0;
-    char *arg = parse_env_args(args, &flag);
+    t_env *env = parse_env_args(args);
     char *temp = NULL;
     int return_ = 0;
 
-    if (mx_count_arr_el(args) == 1 || (flag == 2 && arg == NULL && mx_count_arr_el(args) == 2))
-        mx_print_strarr(environ, "\n");
-    else if (flag == 2 && arg != NULL) {
-        temp = mx_strjoin(args[2], "=");
-        for (int i = 0; environ[i]!= NULL; i++) {
-           if(strstr(environ[i], temp) == NULL) {
-               mx_printstr(environ[i]);
-               mx_printstr("\n");
-           }
-        }
-        mx_strdel(&temp);
-    }
+    if (mx_count_arr_el(args) == 1 || env->comm == NULL)
+        mx_print_strarr(env->env_var, "\n");
+//    else if (flag == 2 && arg != NULL) {
+//        temp = mx_strjoin(args[2], "=");
+//        for (int i = 0; environ[i]!= NULL; i++) {
+//           if(strstr(environ[i], temp) == NULL) {
+//               mx_printstr(environ[i]);
+//               mx_printstr("\n");
+//           }
+//        }
+//        mx_strdel(&temp);
+//    }
     else
         return_ = 1;
-    mx_strdel(&arg);
+    free(env);
     return return_;
 }
 

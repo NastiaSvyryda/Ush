@@ -71,7 +71,7 @@ static void set_shlvl(void) {
     char *shlvl = mx_itoa(mx_atoi(MX_SHLVL()) + 1);
 
     setenv("SHLVL", shlvl, 1);
-    mx_strdup(shlvl);
+    mx_strdel(&shlvl);
 }
 
 static char *find_ush_path(char **commands) {
@@ -100,8 +100,8 @@ int main(int argc, char **argv){
         //mx_parsing(ush->command);
         return_value = executing(ush->command, ush_path);
         mx_strdel(&ush->command);
+        //system("leaks -q ush");
     }
     mx_strdel(&ush_path);
-    system("leaks -q ush");
     return return_value;
 }
