@@ -15,50 +15,64 @@ OBJ_DIR = obj
 SRC = $(addprefix $(SRC_DIR)/,\
 	builds/mx_cd.c \
 	builds/mx_pwd.c \
-	builds/mx_env.c\
-	builds/mx_export.c\
-	builds/mx_exit.c\
+	builds/mx_env.c \
+	builds/mx_export.c \
+	builds/mx_exit.c \
+	builds/mx_echo.c \
+	builds/mx_which.c \
 	input/mx_process_input.c \
 	input/mx_input_ascii.c \
 	input/mx_input_non_ascii.c \
 	input/mx_set_non_canonic.c \
 	input/mx_fill_command.c \
 	input/mx_moving_coursor_str.c \
-	parsing/mx_parsing.c \
-	parsing/mx_count_queue_operation.c \
-	parsing/mx_create_queue.c \
-	parsing/mx_push_back_queue.c \
-	parsing/mx_insort_t_queue.c \
+    parsing/mx_count_queue_operation.c \
+    parsing/mx_create_queue.c \
+    parsing/mx_insort_t_queue.c \
+    parsing/mx_parsing.c \
+    parsing/mx_pop_front_queue.c \
+    parsing/mx_push_back_queue.c \
 	printing/mx_print_prompt.c \
-	main/mx_execute.c\
+	executing/mx_execute.c \
+	executing/mx_push_execute_queue.c \
 	main/mx_create_ush.c \
-	main/mx_is_builtin.c\
-	main/mx_use_pipe.c\
-	main/main.c)
+	main/mx_is_builtin.c \
+	main/mx_use_pipe.c \
+	main/main.c \
+	utils/mx_util_get_flag_index.c \
+    utils/mx_util_replace_operator.c \
+    utils/mx_util_strsplit_one.c)
 
 OBJ = \
 	mx_cd.o \
-	mx_pwd.o \
-	mx_env.o\
-	mx_export.o\
-	mx_exit.o\
-	mx_process_input.o \
-	mx_input_ascii.o \
-	mx_input_non_ascii.o \
-	mx_set_non_canonic.o \
-	mx_fill_command.o \
-	mx_moving_coursor_str.o \
-	mx_print_prompt.o \
-	mx_parsing.o \
-	mx_count_queue_operation.o \
+    mx_pwd.o \
+    mx_env.o \
+    mx_export.o \
+    mx_exit.o \
+    mx_echo.o \
+    mx_which.o \
+    mx_process_input.o \
+    mx_input_ascii.o \
+    mx_input_non_ascii.o \
+    mx_set_non_canonic.o \
+    mx_fill_command.o \
+    mx_moving_coursor_str.o \
+    mx_count_queue_operation.o \
     mx_create_queue.o \
-    mx_push_back_queue.o \
     mx_insort_t_queue.o \
-	mx_create_ush.o \
-	mx_execute.o\
-	mx_is_builtin.o\
-	mx_use_pipe.o\
-	main.o
+    mx_parsing.o \
+    mx_pop_front_queue.o \
+    mx_push_back_queue.o \
+    mx_print_prompt.o \
+    mx_execute.o \
+    mx_push_execute_queue.o \
+    mx_create_ush.o \
+    mx_is_builtin.o \
+    mx_use_pipe.o \
+    main.o \
+    mx_util_get_flag_index.o \
+    mx_util_replace_operator.o \
+    mx_util_strsplit_one.o
 CC = clang
 
 CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic

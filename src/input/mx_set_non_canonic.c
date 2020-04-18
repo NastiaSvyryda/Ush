@@ -8,14 +8,14 @@ void mx_set_non_canonic(struct termios *savetty) {
     struct termios tty;
 
     if ( !isatty(0) ) {
-        fprintf (stderr, "stdin not terminal\n");
+        fprintf (stderr, "stdin not a terminal\n");
         exit (1);
     }
     tcgetattr (0, &tty);
     *savetty = tty;
     tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
-        | INLCR | IGNCR | ICRNL | IXON);
-    tty.c_lflag &= ~(ECHO| ECHONL | ICANON | ISIG | IEXTEN);
+                     | INLCR | IGNCR | ICRNL | IXON);
+    tty.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
     tty.c_cflag &= ~(CSIZE | PARENB);
     tty.c_cflag |= CS8;
     tty.c_iflag &= IGNCR;

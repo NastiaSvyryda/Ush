@@ -30,9 +30,10 @@ int mx_pwd(char **args) {
 
     parse_pwd(args, &flag);
     is_link = check_symlink(position, flag, 2);
-    if (flag == 2 && is_link == 1 && flag!= 3)//redo
-        printf("%s\n", position);
-    else if (flag != 3)
+//    if (flag == 2 && is_link == 1 && flag!= 3)//redo
+//        printf("%s\n", position);
+//    else
+    if (flag != 3)
         printf("%s\n", position);
     else {
         mx_strdel(&position);

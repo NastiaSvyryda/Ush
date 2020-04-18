@@ -1,105 +1,77 @@
 #include <ush.h>
 
-void lst_push_front1(t_dbl_list * lst, t_dbl_node *p) {
-    t_dbl_node* first = lst->first;
+static t_input *init_input() {
+    t_input *input = malloc(sizeof(t_input));
 
-    if(lst->last) {
-        first->prev = p;
-        p->next = first;
-    } else {
-        /* p у нас будет первым и единственным на данный момент узлом */
-        lst->last = p;
-        p->next = 0;
-    }
-
-    lst->first = p;
-    p->prev = 0;
-
-    ++lst->size;
-}
-
-void lst_push_back(t_dbl_list * lst, t_dbl_node * p) {
-    t_dbl_node* last = lst->last;
-
-    if(last) {
-        /* добавляем узел p после узла last */
-        last->next = p;
-        p->prev = last;
-    } else {
-        /* p - первый элемент */
-        lst->first = p;
-        p->prev = 0;
-    }
-
-    /* p - новый последний элемент */
-
-    lst->last = p;
-    p->next = 0;
-
-    ++lst->size;
-}
-
-
-
-t_dbl_data* make_node(char* n) {
-    t_dbl_data* p = (t_dbl_data *) malloc(sizeof (t_dbl_data));
-    p->data = mx_strdup(n);
-
-    return p;
-}
-
-static void init_input(t_input *input) {
     input->arrow_press = 0;
     input->num_backspace = 0;
-    input->len = 1;
-    input->command = mx_strnew(CHAR_MAX);
+    input->len = 0;
+    input->command = mx_strnew(1000);
     input->ctrl_c = 0;
     input->enter = 0;
-    input->left = 0;
     input->coursor_position = 0;
+    input->input_ch = '\0';
     input->input_ch_arr = (char *)&input->input_ch;
+    return input;
 }
 
-static char *read_str(t_ush *ush, t_input *input) {
-    char *ret_str = NULL;
+static int mx_getch(t_input *input) {
+    int size = 0;
 
-    init_input(input);
-    while (1) {
-        read(0, &input->input_ch, 4);
-        if (input->input_ch <= 127 && input->input_ch != 27)
-            ret_str = mx_input_ascii(input);
-        else
-                mx_input_non_ascii(input, ush);
-        if (input->enter == 1 || input->ctrl_c == 1)
-            break;
+    size = read(0, &input->input_ch, 4);
+    return size;
+}
+
+//int mx_get_twidth() {
+//    if (tgetent(NULL, "xterm-256color") < 0) {
+//        fprintf(stderr, "ush: Could not access the termcap data base.\n");
+//        exit(1);
+//    }
+//    return tgetnum("co");
+//}
+static int winsize(void) {
+    struct winsize wins;
+    int err = ioctl(0, TIOCGWINSZ, &wins);//заменить запрет функция
+
+    if (err == -1)
+        return 0;
+    return wins.ws_col;
+}
+
+static char *read_str() {
+    int i = 0;
+    int k = 0;
+    char *ret_str = NULL;
+    t_input *input = init_input();
+    input->term_width = winsize();
+    while (input->input_ch != '\r') {
+        k = 0;
+        i = mx_getch(input);
+        while (k < i) {
+            input->input_ch = input->input_ch_arr[k];
+            if (input->input_ch <= 127 && input->input_ch != 27) {
+                ret_str = mx_input_ascii(input);
+            }
+            else
+                mx_input_non_ascii(input);
+            if (input->input_ch < 32)
+                break;
+            k++;
+        }
     }
+//    ret_str = mx_strdup(input->command);
     mx_strdel(&input->command);
     free(input);
-    input = NULL;
-    if ( ret_str == NULL|| ret_str[0] == '\0' )
-        return NULL;
+    mx_printstr("\n");
     return ret_str;
 }
 
-
-
-char *mx_process_input(t_ush *ush) {
-    t_input *input = (t_input *) malloc(sizeof (t_input));
+char *mx_process_input() {
     char *str = NULL;
-    int history = 0;
-    //int get_count = 0;//
-    mx_set_non_canonic(&input->savetty);
-    str = read_str(ush, input);
-    if (str !=  NULL) {
-        lst_push_front1(ush->history, (t_dbl_node *) make_node(str));
-        history++;
-    }
-    ush->curr_history = ush->history->first;
-//    for(; ush->curr_history != 0; ush->curr_history = ush->curr_history->next) {
-//        get_count++;
-//
-//        printf("element %d: %s\n", get_count, ((t_dbl_data*)ush->curr_history)->data);
-//    }
-    set_canonic(input->savetty);
+    struct termios savetty;
+    mx_set_non_canonic(&savetty);
+    str = read_str();
+    set_canonic(savetty);
+
     return str;
 }

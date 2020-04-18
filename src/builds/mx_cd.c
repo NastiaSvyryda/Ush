@@ -71,7 +71,11 @@ static char *handle_path(char *path) {
     else {
         value = mx_strdup(MX_PWD());
         value = mx_realloc(value, mx_strlen(value) + mx_strlen(path) + 2);
-        if (mx_strcmp(path, "..") == 0 || mx_strcmp(path, "-") == 0) {//redo -
+        if (mx_strcmp(path, "-") == 0) {
+            mx_strdel(&value);
+            value = mx_strdup(MX_OLDPWD());
+        }
+        else if (mx_strcmp(path, "..") == 0) {
             mx_strdel(&value);
             value = previous_dir();
         }
@@ -141,8 +145,12 @@ int mx_cd(char **args) {
             return_ = 1;
         }
         else if (chdir(arg) != -1) {
+            setenv("OLDPWD", MX_PWD(), 1);
             setenv("PWD", arg, 1);
-        } else
+            if(strcmp(args[1], "-") == 0)
+                printf("%s\n", arg);
+        }
+        else
             printf("%s\n",arg);
         mx_strdel(&arg);
     }
