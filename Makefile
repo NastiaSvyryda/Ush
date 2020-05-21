@@ -20,6 +20,14 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	builds/mx_exit.c \
 	builds/mx_echo.c \
 	builds/mx_which.c \
+	builds/mx_ush.c\
+	builds/mx_check_symlink.c\
+	builds/mx_find_flag.c\
+	builds/mx_file_exist.c\
+	builds/mx_parse_cd_args.c\
+	builds/mx_parse_echo.c\
+	builds/mx_execute_env_flags.c\
+	builds/mx_free_env.c\
 	input/mx_process_input.c \
 	input/mx_input_ascii.c \
 	input/mx_input_non_ascii.c \
@@ -35,6 +43,8 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	printing/mx_print_prompt.c \
 	executing/mx_execute.c \
 	executing/mx_push_execute_queue.c \
+	executing/mx_check_expansion.c \
+	main/mx_coomand_in_path.c \
 	main/mx_create_ush.c \
 	main/mx_is_builtin.c \
 	main/mx_use_pipe.c \
@@ -51,6 +61,14 @@ OBJ = \
     mx_exit.o \
     mx_echo.o \
     mx_which.o \
+    mx_ush.o \
+    mx_parse_cd_args.o\
+    mx_check_symlink.o\
+    mx_find_flag.o\
+    mx_parse_echo.o\
+    mx_execute_env_flags.o\
+    mx_free_env.o\
+    mx_file_exist.o\
     mx_process_input.o \
     mx_input_ascii.o \
     mx_input_non_ascii.o \
@@ -66,6 +84,8 @@ OBJ = \
     mx_print_prompt.o \
     mx_execute.o \
     mx_push_execute_queue.o \
+    mx_check_expansion.o \
+    mx_coomand_in_path.o \
     mx_create_ush.o \
     mx_is_builtin.o \
     mx_use_pipe.o \

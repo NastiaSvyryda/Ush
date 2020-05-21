@@ -12,6 +12,7 @@ static void parse_pwd(char **args, int *flag) {
                 if (args[i][y] != 'L' && args[i][y] != 'P') {
                     fprintf(stderr, MX_PWD_ERR, args[i][y]);
                     *flag = 3;
+                    break;
                 }
             }
             if (*flag == 3)
@@ -29,7 +30,7 @@ int mx_pwd(char **args) {
     int is_link = 0;
 
     parse_pwd(args, &flag);
-    is_link = check_symlink(position, flag, 2);
+    is_link = mx_check_symlink(position, flag, 2);
 //    if (flag == 2 && is_link == 1 && flag!= 3)//redo
 //        printf("%s\n", position);
 //    else

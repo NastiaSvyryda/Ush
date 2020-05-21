@@ -14,7 +14,7 @@ void mx_insert_char(t_input *input, char sym, int index) {
 
 
 void mx_delete_char(t_input *input, int index) {
-    input->command = realloc(input->command, strlen(input->command));
+    input->command = mx_realloc(input->command, strlen(input->command));
     for (; index < mx_strlen(input->command) - 1; index++) {
         input->command[index] = input->command[index + 1];
     }
@@ -38,55 +38,64 @@ static void moving_coursor_on_n_moves(int num_of_moves, char *side) {
     mx_strdel(&str);
 }
 
+static void case_backspace(t_input *input) {
+    input->coursor_position--;
+    input->len--;
+    mx_clear_str();
+    if (input->term_width > input->len + 8)
+        mx_print_prompt((wchar_t)128512);
+    mx_delete_char(input, input->coursor_position);
+    if (input->term_width > input->len + 8) {
+        mx_printstr(input->command);
+        if (input->coursor_position != input->len)
+            moving_coursor_on_n_moves(input->len - input->coursor_position, "D");
+    }
+    else {
+        for (int i = input->term_width - 7; i < input->len; i++)
+            mx_printchar(input->command[i]);
+        if (input->term_width - 8 == input->len) {
+            moving_coursor_on_n_moves(input->term_width, "C");
+            mx_printstr("\033[A");
+            write(STDOUT_FILENO, "\033[K", 4);
+        }
+    }
+}
+
+static void case_default(t_input *input) {
+    if (input->coursor_position != input->len)
+        mx_insert_char(input, input->input_ch, input->coursor_position);
+    else if (input->command != NULL)
+        input->command[input->len] = (char)input->input_ch;
+    else {
+        input->command = mx_strnew(1000);//?
+        input->command[input->len] = (char)input->input_ch;
+    }
+    input->len++;
+    input->coursor_position++;
+    if (input->coursor_position != input->len) {
+        mx_clear_str();
+        mx_print_prompt((wchar_t)128512);
+        mx_printstr(input->command);
+        moving_coursor_on_n_moves(input->len - input->coursor_position, "D");
+    }
+    else
+        mx_printchar((char) input->input_ch);
+}
+
 char *mx_fill_command(t_input *input) {
     char *ret_str = NULL;
 
     switch (input->input_ch) {
         case MX_BACKSPACE:
-            if (input->coursor_position > 0) {
-                input->coursor_position--;
-                input->len--;
-                mx_clear_str();
-                if (input->term_width > input->len + 8)
-                    mx_print_prompt((wchar_t)128512);
-                mx_delete_char(input, input->coursor_position);
-                if (input->term_width > input->len + 8) {
-                    mx_printstr(input->command);
-                    if (input->coursor_position != input->len) {
-                        moving_coursor_on_n_moves(input->len - input->coursor_position, "D");
-                    }
-                }
-                else {
-                    for (int i = input->term_width - 7; i < input->len; i++) {
-                        mx_printchar(input->command[i]);
-                    }
-                    if (input->term_width - 8 == input->len) {
-                        moving_coursor_on_n_moves(input->term_width, "C");
-                        mx_printstr("\033[A");
-                        write(STDOUT_FILENO, "\033[K", 4);
-                    }
-                }
-            }
+            if (input->coursor_position > 0)
+                case_backspace(input);
             break;
         case MX_ENTER:
             input->enter = 1;
             ret_str = mx_strtrim(input->command);
             break;
         default:
-            if (input->coursor_position != input->len)
-                mx_insert_char(input, input->input_ch, input->coursor_position);
-            else
-                input->command[input->len] = (char)input->input_ch;
-            input->len++;
-            input->coursor_position++;
-            if (input->coursor_position != input->len) {
-                mx_clear_str();
-                mx_print_prompt((wchar_t)128512);
-                mx_printstr(input->command);
-                moving_coursor_on_n_moves(input->len - input->coursor_position, "D");
-            }
-            else
-                mx_printchar((char) input->input_ch);
+            case_default(input);
             break;
     }
     return  ret_str;

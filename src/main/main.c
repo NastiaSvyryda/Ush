@@ -1,33 +1,12 @@
 #include <ush.h>
 
-void lst_init(t_dbl_list* lst) {
-    lst->first = lst->last = 0;
-    lst->size = 0;
-}
-
-t_dbl_list* lst_create() {
-    t_dbl_list *lst = (t_dbl_list*) malloc(sizeof (t_dbl_list));
-    lst_init(lst);
-    return lst;
-}
-
-//static int winsize(void) {
-//    struct winsize wins;
-//    int err = ioctl(0, TIOCGWINSZ, &wins);//заменить запрет функция
-//
-//    if (err == -1)
-//        return 0;
-//    return wins.ws_col;
-//}
-
-static int executing(char *ush_path, t_ush *ush) {
-    int return_value = 0;
-    t_queue **queue = NULL;
-    if (ush->command != NULL) {
-        queue = mx_parsing(ush->command);
-        mx_push_execute_queue(queue, ush_path);
+static void executing(t_ush *ush) {
+    //t_queue **queue = NULL;
+    if (ush->command != NULL && strlen(ush->command) > 0) {
+//        queue = mx_parsing(ush->command);
+//        return_value = mx_push_execute_queue(queue, ush);
+        ush->return_value = mx_execute(ush, ush->command, 0);
     }
-    return return_value;
 }
 
 void sigint () {
@@ -42,34 +21,52 @@ static void set_shlvl(void) {
     mx_strdel(&shlvl);
 }
 
-static char *find_ush_path(char **commands) {
-    char *pwd = MX_PWD();
-    char *ush_path = NULL;
-
-    if (mx_strstr(commands[0], "./")){
-        ush_path = mx_replace_substr(commands[0], ".", pwd);
-    }
-    else {
-        ush_path = mx_strdup(commands[0]);
-    }
-    return ush_path;
+static t_dbl_list *deletelem(t_dbl_list *lst) {
+    t_dbl_list *prev = lst->prev; // узел, предшествующий lst
+    t_dbl_list *next = lst->next; // узел, следующий за lst
+    if (prev != NULL)
+        prev->next = lst->next; // переставляем указатель
+    if (next != NULL)
+        next->prev = lst->prev; // переставляем указатель
+    mx_strdel(&lst->data);
+    free(lst); // освобождаем память удаляемого элемента
+    return(prev);
 }
+static void free_history(t_dbl_list *history) {
+    while (history->next != NULL)
+        history = history->next;
+    while (history != NULL) {
+        history = deletelem(history);
+    }
+}
+////
+//static char *process_str(void) {// сделать обработку \ и enter перенос строки продолжение ввода
+//    // обработка в другом процессе () subshell
+//    char *str = mx_strnew(20);
+//
+//    scanf("%s", str);
+//    printf("%s", str);
+//    return str;
+//}
+////
 int main(int argc, char **argv){
-    //status 0 - normal; 1 - pipe; 2 - commsub; 3 - ^C break;
     t_ush *ush = mx_create_ush(argc, argv);
-    int return_value = 0;
-    char *ush_path = find_ush_path(argv);
-    ush->history = lst_create();
     set_shlvl();
     while(1) {
         signal(SIGINT, sigint);
         mx_print_prompt(ush->emodji_num);
-        ush->command = mx_process_input();
-        //mx_parsing(ush->command);
-        return_value = executing(ush_path, ush);
+        ush->command = mx_process_input(ush);
+        executing(ush);
         mx_strdel(&ush->command);
-        system("leaks -q ush");
+        if (ush->exit_status != -1)
+            break;
+        //system("leaks -q ush");
     }
-    mx_strdel(&ush_path);
-    return return_value;
+    free_history(ush->history);
+    mx_strdel(&ush->ush_path);
+    free(ush);
+    system("leaks -q ush");
+    if (ush->exit_status != -1)
+        exit(ush->exit_status);
+    return ush->return_value;
 }

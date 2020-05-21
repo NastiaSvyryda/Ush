@@ -66,6 +66,8 @@ typedef struct s_input t_input;
 typedef struct s_ush t_ush;
 typedef struct s_redirect t_redirect;
 typedef struct s_env t_env;
+typedef struct s_dbl_list t_dbl_list;
+
 
 struct s_queue {
     char *data;
@@ -101,30 +103,31 @@ struct  s_env {
     char **env_var;
 };
 
-typedef struct s_dbl_node {
-    struct s_dbl_node *next;
-    struct s_dbl_node *prev;
-}              t_dbl_node;
+struct s_dbl_list {
+    t_dbl_list *next;
+    t_dbl_list *prev;
+    char *data;
+};
 
-typedef struct s_dbl_list {
-    t_dbl_node * first;
-    t_dbl_node * last;
-    size_t size;
-}              t_dbl_list;
+//typedef struct s_dbl_list {
+//    t_dbl_node * first;
+//    t_dbl_node * last;
+//    size_t size;
+//}              t_dbl_list;
 
-typedef struct s_dbl_data {
-    t_dbl_node lnk;
-    char* data;
-}              t_dbl_data;
+//typedef struct s_dbl_data {
+//    t_dbl_node lnk;
+//    char* data;
+//}              t_dbl_data;
 
 struct s_ush {
     int argc;
     char **argv;
     char *command;
     t_dbl_list *history;
-    t_dbl_node *curr_history;
-    t_dbl_node *tail_history;
     wchar_t emodji_num;
+    char *ush_path;
+    int return_value;
     int exit_status;
 };
 
@@ -146,30 +149,37 @@ char *mx_coomand_in_path(char *command, char *str_path);
 //Builds function
 int mx_pwd(char **args);
 int mx_cd(char **input);
-int mx_env(char **args, char *ush_path);
-int mx_find_flag(char *flags, char *arg);
-int mx_file_exist(char *path);
-int check_symlink(char *arg, int flag, int link);
+int mx_env(char **args, t_ush *ush);
 int mx_export(char **args);
 int mx_unset(char **args);
-int mx_exit(char **input);
+int mx_exit(char **input, int *exit_status);
 int mx_echo(char **args);
 int mx_which(char **input);
+int mx_ush(char **input, char *ush_path);
+
+int mx_find_flag(char *flags, char *arg);
+int mx_file_exist(char *path);
+int mx_check_symlink(char *arg, int flag, int link);
+char *mx_parse_cd_args(char **args, int *flag, int len);
+char *mx_parse_echo(char **args, int *flag_n);
+int mx_execute_env_flags(t_env *env, char **args, int i, int *env_index);
+void mx_free_env(t_env *env);
 
 //Executing function
-int mx_execute(char *str_input, int flag_redirect, char *ush_path);
-void mx_push_execute_queue(t_queue **queue, char *ush_path);
+int mx_execute(t_ush *ush, char *str_input, int flag_redirect);
+int mx_push_execute_queue(t_queue **queue, t_ush *ush);
+char **mx_check_expansion(char *str_input, int ret_val);
 
 //Input function
-//void mx_clear_str();
+void mx_clear_str();
 //void mx_delete_char(t_input *input, int index);
 //void mx_insert_char(t_input *input, char sym, int index);
 //char *mx_moving_coursor_str(int num_of_moves);
 //char *mx_fill_command(t_input *input);
-char *mx_input_ascii(t_input *input);
+char *mx_input_ascii(t_input *input, int *exit_status);
 char *mx_fill_command(t_input *input);
-void mx_input_non_ascii(t_input *input);
-char *mx_process_input();
+void mx_input_non_ascii(t_input *input, t_ush *ush);
+char *mx_process_input(t_ush *ush);
 //char *mx_input_ascii(t_input *input);
 void mx_set_non_canonic(struct termios *savetty);
 void set_canonic(struct termios savetty);
@@ -193,4 +203,7 @@ void mx_print_prompt(wchar_t emodji_num);
 char **mx_util_strsplit_one(const char *s, char *c);
 char *mx_util_replace_operator(char *s);
 int mx_util_get_flag_index(const char *str, const char *sub);
+
+//History
+t_dbl_list *mx_addelem(t_dbl_list *history);
 #endif
