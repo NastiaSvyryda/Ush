@@ -55,7 +55,7 @@ int main(int argc, char **argv){
     while(1) {
         signal(SIGINT, sigint);
         signal(SIGTSTP, SIG_IGN);
-        mx_print_prompt(ush->emodji_num);
+        mx_print_prompt(1, ush);
         ush->command = mx_process_input(ush);
         executing(ush);
         mx_strdel(&ush->command);
