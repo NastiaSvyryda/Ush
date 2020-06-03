@@ -22,21 +22,21 @@ static int mx_getch(t_input *input) {
     return size;
 }
 
-//int mx_get_twidth() {
-//    if (tgetent(NULL, "xterm-256color") < 0) {
-//        fprintf(stderr, "ush: Could not access the termcap data base.\n");
-//        exit(1);
-//    }
-//    return tgetnum("co");
-//}
-static int winsize(void) {
-    struct winsize wins;
-    int err = ioctl(0, TIOCGWINSZ, &wins);//заменить запрет функция
-
-    if (err == -1)
-        return 0;
-    return wins.ws_col;
+int mx_get_twidth() {
+    if (tgetent(NULL, "xterm-256color") < 0) {
+        fprintf(stderr, "ush: Could not access the termcap data base.\n");
+        exit(1);
+    }
+    return tgetnum("co");
 }
+//static int winsize(void) {
+//    struct winsize wins;
+//    int err = ioctl(0, TIOCGWINSZ, &wins);//заменить запрет функция
+//
+//    if (err == -1)
+//        return 0;
+//    return wins.ws_col;
+//}
 
 static t_dbl_list *addelem(t_dbl_list *history) {
     t_dbl_list *temp, *p;
@@ -110,12 +110,13 @@ static char *read_str(struct termios savetty, t_ush *ush) {
     t_input *input = init_input();
 
     input->savetty = savetty;
-    input->term_width = winsize();
+    input->term_width = mx_get_twidth();
     while (input->input_ch != '\r' && input->ctrl_c != 1 && input->term_width != 0) {
         ret_str = inside_cycle(input, &flag, ush, ret_str);
         if (ush->exit_status != -1)
             break;
-        temp = add_history(input, &flag, ush, temp);
+        if (input->len > 0)
+            temp = add_history(input, &flag, ush, temp);
     }
     if (ush->history->next != NULL)
         sort_history(ush, temp);
