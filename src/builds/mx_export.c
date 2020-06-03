@@ -14,17 +14,14 @@ int mx_export(char **args) {
             len_v = mx_strlen(args[y]) - len_n - 1;
             name = mx_strnew(len_n);
             value = mx_strnew(len_v);
-            for (int i = 0; args[y][i] != '='; i++) {
+            for (int i = 0; args[y][i] != '='; i++)
                 name[i] = args[y][i];
-            }
-            for (int i = 0; args[y][len_n + i + 1] != '\0'; i++) {
+            for (int i = 0; args[y][len_n + i + 1] != '\0'; i++)
                 value[i] = args[y][len_n + i + 1];
-            }
             setenv(name, value, 1);
             mx_strdel(&name);
             mx_strdel(&value);
         }
-        return 1;
     }
     //setenv("_", tmp, 1);
     return 0;
