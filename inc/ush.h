@@ -15,7 +15,6 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <termcap.h>
-#include <time.h>
 
 
 #define MX_TMPDIR() (getenv("TMPDIR"))
@@ -177,8 +176,8 @@ void mx_clear_str();
 //void mx_insert_char(t_input *input, char sym, int index);
 //char *mx_moving_coursor_str(int num_of_moves);
 //char *mx_fill_command(t_input *input);
-char *mx_input_ascii(t_input *input, t_ush *ush);
-char *mx_fill_command(t_input *input, t_ush *ush);
+char *mx_input_ascii(t_input *input, int *exit_status);
+char *mx_fill_command(t_input *input);
 void mx_input_non_ascii(t_input *input, t_ush *ush);
 char *mx_process_input(t_ush *ush);
 //char *mx_input_ascii(t_input *input);
@@ -192,10 +191,10 @@ int mx_count_queue_operation(const char *arr);
 t_queue *mx_create_queue(char *data, char operation);
 void mx_pop_front_queue(t_queue **head);
 void mx_push_back_queue(t_queue **queue, char *data, char operation);
-t_queue *mx_insort_t_queue(char *arr, t_queue **arr_queue);
+void mx_insort_t_queue(char *arr, t_queue **arr_queue);
 
 //Printing function
-void mx_print_prompt();
+void mx_print_prompt(wchar_t emodji_num);
 
 //Validations function
 //
