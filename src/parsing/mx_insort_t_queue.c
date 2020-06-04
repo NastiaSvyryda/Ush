@@ -17,12 +17,12 @@ static int mx_get_flag_index(const char *str, const char *sub) {
     return INT_MAX;
 }
 
-void mx_insort_t_queue(char *arr, t_queue **arr_queue) {
+t_queue *mx_insort_t_queue(char *arr, t_queue **arr_queue) {
     int count = mx_count_queue_operation(arr);
+    char **arr_str = NULL;
+    char *temp = arr;
     int and = 0;
     int or = 0;
-    char **arr_str = NULL;
-    char *temp = mx_strdup(arr);
 
     for(int j = 0; j <= count; j++) {
             and = mx_get_flag_index(temp, "&&");
@@ -30,21 +30,18 @@ void mx_insort_t_queue(char *arr, t_queue **arr_queue) {
             if ((and >= 0) && (and < or)) {
                 arr_str = mx_util_strsplit_one(temp, "&&");
                 mx_push_back_queue(arr_queue, arr_str[0], '&');
-                mx_strdel(&temp);
-                temp = mx_strdup(arr_str[1]);
-                mx_free_void_arr((void **)arr_str, mx_count_arr_el(arr_str));
+                temp = arr_str[1];
+                continue;
             } else if ((or >= 0) && (or < and )) {
                 arr_str = mx_util_strsplit_one(temp, "||");
                 mx_push_back_queue(arr_queue, arr_str[0], '|');
-                mx_strdel(&temp);
-                temp = mx_strdup(arr_str[1]);
-                mx_free_void_arr((void **)arr_str, mx_count_arr_el(arr_str));
+                temp = arr_str[1];
+                continue;
             }  else if (and == INT_MAX && or == INT_MAX) {
                 if (temp == NULL)
-                    temp = mx_strdup(arr);
+                    temp = arr;
                 mx_push_back_queue(arr_queue, temp, '0');
             }
     }
-    mx_strdel(&temp);
-    //return *arr_queue;
+    return *arr_queue;
 }
