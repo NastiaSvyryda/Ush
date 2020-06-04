@@ -20,7 +20,7 @@ static void up_arrow(t_input *input, t_ush *ush) {
         ush->history = ush->history->prev;
         mx_strdel(&input->command);
         mx_clear_str();
-        mx_print_prompt(0, ush);
+        mx_print_prompt((wchar_t) 128512);
         if (ush->history->data != NULL) {
             input->command = mx_strdup(ush->history->data);
             mx_printstr(input->command);
@@ -34,7 +34,7 @@ static void down_arrow(t_input *input, t_ush *ush) {
         ush->history = ush->history->next;
         mx_strdel(&input->command);
         mx_clear_str();
-        mx_print_prompt(0, ush);
+        mx_print_prompt((wchar_t) 128512);
         if (ush->history->data != NULL) {
             input->command = mx_strdup(ush->history->data);
             mx_printstr(input->command);

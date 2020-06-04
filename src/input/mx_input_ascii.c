@@ -10,12 +10,12 @@ static void events (t_input *input, int *exit_status) {
         input->ctrl_c = 1;
 }
 
-char *mx_input_ascii(t_input *input, t_ush *ush) {
+char *mx_input_ascii(t_input *input, int *exit_status) {
     char *ret_str = NULL;
     if (input->input_ch != '\r'  && input->input_ch != '\t' && input->input_ch < 32)
-        events(input, &ush->exit_status);
+        events(input, exit_status);
     else {
-        ret_str = mx_fill_command(input, ush); //
+        ret_str = mx_fill_command(input); //
     }
     return ret_str;
 }
