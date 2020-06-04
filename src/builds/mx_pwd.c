@@ -34,8 +34,10 @@ int mx_pwd(char **args) {
 //    if (flag == 2 && is_link == 1 && flag!= 3)//redo
 //        printf("%s\n", position);
 //    else
-    if (flag != 3)
-        printf("%s\n", position);
+    if (flag != 3) {
+        mx_printstr(position);
+        mx_printchar('\n');
+    }
     else {
         mx_strdel(&position);
         return 1;
