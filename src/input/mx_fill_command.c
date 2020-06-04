@@ -38,64 +38,72 @@ static void moving_coursor_on_n_moves(int num_of_moves, char *side) {
     mx_strdel(&str);
 }
 
-static void case_backspace(t_input *input) {
+static void case_backspace(t_input *input, t_ush *ush) {
     input->coursor_position--;
     input->len--;
     mx_clear_str();
     if (input->term_width > input->len + 8)
-        mx_print_prompt((wchar_t)128512);
+        mx_print_prompt(0, ush);
     mx_delete_char(input, input->coursor_position);
     if (input->term_width > input->len + 8) {
         mx_printstr(input->command);
         if (input->coursor_position != input->len)
             moving_coursor_on_n_moves(input->len - input->coursor_position, "D");
     }
+//    else {
+//        //mx_clear_str();
+//        write(2, "ush: input string is too long", mx_strlen("ush: input string is too long"));
+//        for (int i = input->term_width - 7; i < input->len; i++)
+//            mx_printchar(input->command[i]);
+//        if (input->term_width - 8 == input->len) {
+//            moving_coursor_on_n_moves(input->term_width, "C");
+//            mx_printstr("\033[A");
+//            write(STDOUT_FILENO, "\033[K", 4);
+//        }
+//
+//    }
+}
+
+static void case_default(t_input *input, t_ush *ush) {
+    if (input->len + 8 > input->term_width) {
+        write(2, "\nush: input string is too long", mx_strlen("ush: input string is too long"));
+        input->term_width = 0;
+    }
     else {
-        for (int i = input->term_width - 7; i < input->len; i++)
-            mx_printchar(input->command[i]);
-        if (input->term_width - 8 == input->len) {
-            moving_coursor_on_n_moves(input->term_width, "C");
-            mx_printstr("\033[A");
-            write(STDOUT_FILENO, "\033[K", 4);
+        if (input->coursor_position != input->len)
+            mx_insert_char(input, input->input_ch, input->coursor_position);
+        else if (input->command != NULL)
+            input->command[input->len] = (char) input->input_ch;
+        else {
+            input->command = mx_strnew(1000);//?
+            input->command[input->len] = (char) input->input_ch;
         }
+        input->len++;
+        input->coursor_position++;
+        if (input->coursor_position != input->len) {
+            mx_clear_str();
+            mx_print_prompt(0, ush);
+            mx_printstr(input->command);
+            moving_coursor_on_n_moves(input->len - input->coursor_position, "D");
+        } else
+            mx_printchar((char) input->input_ch);
     }
 }
 
-static void case_default(t_input *input) {
-    if (input->coursor_position != input->len)
-        mx_insert_char(input, input->input_ch, input->coursor_position);
-    else if (input->command != NULL)
-        input->command[input->len] = (char)input->input_ch;
-    else {
-        input->command = mx_strnew(1000);//?
-        input->command[input->len] = (char)input->input_ch;
-    }
-    input->len++;
-    input->coursor_position++;
-    if (input->coursor_position != input->len) {
-        mx_clear_str();
-        mx_print_prompt((wchar_t)128512);
-        mx_printstr(input->command);
-        moving_coursor_on_n_moves(input->len - input->coursor_position, "D");
-    }
-    else
-        mx_printchar((char) input->input_ch);
-}
-
-char *mx_fill_command(t_input *input) {
+char *mx_fill_command(t_input *input, t_ush *ush) {
     char *ret_str = NULL;
 
     switch (input->input_ch) {
         case MX_BACKSPACE:
             if (input->coursor_position > 0)
-                case_backspace(input);
+                case_backspace(input, ush);
             break;
         case MX_ENTER:
             input->enter = 1;
             ret_str = mx_strtrim(input->command);
             break;
         default:
-            case_default(input);
+            case_default(input, ush);
             break;
     }
     return  ret_str;
