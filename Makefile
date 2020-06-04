@@ -106,7 +106,7 @@ libmx/libmx.a:
 
 uls : $(SRC) inc/ush.h libmx/libmx.a
 	@$(CC) $(CFLAGS) -c $(SRC) $(foreach d, $(INC), -I $d)
-	@$(CC) $(CFLAGS) $(OBJ) $(LIBMXF)/$(LIB_NAME) -o $(APP_NAME) -ltermcap
+	@$(CC) $(CFLAGS) $(OBJ) $(LIBMXF)/$(LIB_NAME) -o $(APP_NAME)
 	@printf "\r\33[2Kush \033[32;1mcreated\033[0m\n"
 	@mkdir -p $(OBJ_DIR)
 	@mv $(OBJ) $(OBJ_DIR)
