@@ -128,13 +128,23 @@ static char *read_str(struct termios savetty, t_ush *ush) {
 char *mx_process_input(t_ush *ush) {
     char *str = NULL;
     struct termios savetty;
+    size_t bufsize = 32;
+    char *buffer = NULL;
     //t_dbl_list *temp = NULL;
-    mx_set_non_canonic(&savetty);
-    str = read_str(savetty, ush);
-//    if (*exit_status != -1)
-//        return 0;
+    if (!isatty(0)) {
+        //buffer = (char *)malloc(bufsize * sizeof(char));
+        getline(&buffer,&bufsize,stdin);
+        str = mx_strndup(buffer, mx_strlen(buffer) - 1);
+        ush->exit_non_term = 1;
+        mx_strdel(&buffer);
+    }
+    else {
+        mx_print_prompt(1, ush);
+        mx_set_non_canonic(&savetty);
+        str = read_str(savetty, ush);
+        set_canonic(savetty);
+    }
     if (ush->history->data != NULL)
         ush->history = addelem(ush->history);
-    set_canonic(savetty);
     return str;
 }

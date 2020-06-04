@@ -129,6 +129,8 @@ struct s_ush {
     char *ush_path;
     int return_value;
     int exit_status;
+    int pid;
+    int exit_non_term;
 };
 
 struct s_redirect {

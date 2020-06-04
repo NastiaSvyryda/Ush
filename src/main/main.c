@@ -57,11 +57,10 @@ int main(int argc, char **argv){
     while(1) {
         signal(SIGINT, sigint);
         signal(SIGTSTP, SIG_IGN);
-        mx_print_prompt(1, ush);
         ush->command = mx_process_input(ush);
         executing(ush);
         mx_strdel(&ush->command);
-        if (ush->exit_status != -1)
+        if (ush->exit_status != -1 || ush->exit_non_term == 1)
             break;
         system("leaks -q ush");
     }

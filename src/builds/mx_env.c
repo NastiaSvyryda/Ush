@@ -87,7 +87,7 @@ int mx_env(char **args, t_ush *ush) {//check on unit mac for emacs!
             env_args = mx_strsplit(env->comm_args, ' ');
             if (fork())
                 wait(NULL);
-            else {
+            else if (env->env_var != NULL){
                 //mx_print_strarr(env->comm_args, "\n");
                 if (execve(env_args[0], env_args, env->env_var) == -1)//child execute
                     perror("execve");

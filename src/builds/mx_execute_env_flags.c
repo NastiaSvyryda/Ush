@@ -30,7 +30,6 @@ static int flag_i(t_env *env, char **args, int i, int *env_index) {
         return -1;
     }
     if (args[i-1][0] == '-') {
-        mx_free_void_arr((void **) env->env_var, mx_count_arr_el(env->env_var));
         env->env_var = (char**)malloc((2) * sizeof(char *));
         env->env_var[*env_index++] = mx_strdup(args[i]);
         env->env_var[*env_index] = NULL;
@@ -66,9 +65,11 @@ static int flag_u(t_env *env, char *arg, char **environ) {
     return 0;
 }
 
-int mx_execute_env_flags(t_env *env, char **args, int i, int *env_index) { // fix env -i env
+int mx_execute_env_flags(t_env *env, char **args, int i, int *env_index) {
     extern char **environ;
 
+    if (env->flag == 2 && i == 2)
+        mx_free_void_arr((void **) env->env_var, mx_count_arr_el(env->env_var));
     if (env->comm != NULL && mx_strcmp(args[i],env->comm) != 0)
         return do_command(env, args, i);
     else if (env->flag == 1 && args[i-1][0] == '-' && mx_file_exist(args[i]) == 1)

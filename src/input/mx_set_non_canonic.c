@@ -6,11 +6,7 @@ void set_canonic(struct termios savetty) {
 
 void mx_set_non_canonic(struct termios *savetty) {
     struct termios tty;
-
-    if ( !isatty(0) ) {
-        fprintf (stderr, "stdin not a terminal\n");
-        exit (1);
-    }
+    
     tcgetattr (0, &tty);
     *savetty = tty;
     tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
