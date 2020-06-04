@@ -103,7 +103,7 @@ static void parent_redirect(int flag_redirect, t_redirect *redirect, int *return
         mx_printstr(redirect->_stderr);
     }
 }
-
+//pid_t pidA;
 static void child_redirect(int flag_redirect, t_redirect *redirect) {
     if (flag_redirect == 1) {
         if (dup2(redirect->fd_stdout[1], 1) == -1)
@@ -114,21 +114,29 @@ static void child_redirect(int flag_redirect, t_redirect *redirect) {
         perror("dup2");
     close(redirect->fd_stderr[1]);
 }
+//void siga() {
+//    mx_printint(pidA);
+//    kill(pidA, SIGKILL);
+//}
+//void sigh(int pid) {
+//    kill(pid, SIGCHLD);
+//}
 
 int mx_execute(t_ush *ush, char *str_input, int flag_redirect) {//добавить env для env?
-    pid_t pid;
     int return_ = 0;
+    pid_t pid;
     char **input = mx_check_expansion(str_input, ush->return_value);
     t_redirect *redirect = create_redirect();
 
-//    signal(SIGTSTP, SIG_IGN);
     pid = fork();
     if (pid != 0) {
+//        signal(SIGCHLD, siga);
         par_execute(&return_, redirect->fd_return, input, &ush->exit_status);
         parent_redirect(flag_redirect, redirect, &return_);
+
     }
     else {
-        signal(SIGTSTP, SIG_DFL);
+//        signal(SIGTSTP, sigh);
         child_redirect(flag_redirect, redirect);
         child_execute(&return_, input, redirect->fd_return, ush);
     }

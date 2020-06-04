@@ -1,14 +1,12 @@
 #include <ush.h>
 
 static void executing(t_ush *ush) {
-    t_queue **queue = NULL;
+    //t_queue **queue = NULL;
     if (ush->command != NULL && strlen(ush->command) > 0) {
-        queue = mx_parsing(ush->command);
-        ush->return_value = mx_push_execute_queue(queue, ush);
+//        queue = mx_parsing(ush->command);
+//        return_value = mx_push_execute_queue(queue, ush);
+        ush->return_value = mx_execute(ush, ush->command, 0);
     }
-    mx_strdel(&ush->command);
-    free(queue);
-
 }
 
 void sigint () {
@@ -57,18 +55,18 @@ int main(int argc, char **argv){
     while(1) {
         signal(SIGINT, sigint);
         signal(SIGTSTP, SIG_IGN);
-        mx_print_prompt(ush->emodji_num);
+        mx_print_prompt(1, ush);
         ush->command = mx_process_input(ush);
         executing(ush);
         mx_strdel(&ush->command);
         if (ush->exit_status != -1)
             break;
-        system("leaks -q ush");
+        //system("leaks -q ush");
     }
     free_history(ush->history);
     mx_strdel(&ush->ush_path);
     free(ush);
-    //system("leaks -q ush");
+    system("leaks -q ush");
     if (ush->exit_status != -1)
         exit(ush->exit_status);
     return ush->return_value;
