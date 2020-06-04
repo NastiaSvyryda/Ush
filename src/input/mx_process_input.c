@@ -59,7 +59,7 @@ static char *inside_cycle(t_input *input, int *flag, t_ush *ush, char *ret_str) 
     while (k < i) {
         input->input_ch = input->input_ch_arr[k];
         if (input->input_ch <= 127 && input->input_ch != 27) {
-            ret_str = mx_input_ascii(input, &ush->exit_status);
+            ret_str = mx_input_ascii(input, ush);
             if (ush->exit_status != -1)
                 break;
         }
@@ -111,11 +111,12 @@ static char *read_str(struct termios savetty, t_ush *ush) {
 
     input->savetty = savetty;
     input->term_width = winsize();
-    while (input->input_ch != '\r' && input->ctrl_c != 1) {
+    while (input->input_ch != '\r' && input->ctrl_c != 1 && input->term_width != 0) {
         ret_str = inside_cycle(input, &flag, ush, ret_str);
         if (ush->exit_status != -1)
             break;
-        temp = add_history(input, &flag, ush, temp);
+        if (input->len > 0)
+            temp = add_history(input, &flag, ush, temp);
     }
     if (ush->history->next != NULL)
         sort_history(ush, temp);
@@ -128,7 +129,7 @@ char *mx_process_input(t_ush *ush) {
     char *str = NULL;
     struct termios savetty;
     //t_dbl_list *temp = NULL;
-    mx_set_non_canonic(&savetty); //echo "echo 55" | ./ush
+    mx_set_non_canonic(&savetty);
     str = read_str(savetty, ush);
 //    if (*exit_status != -1)
 //        return 0;

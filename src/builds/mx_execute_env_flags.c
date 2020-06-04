@@ -66,7 +66,7 @@ static int flag_u(t_env *env, char *arg, char **environ) {
     return 0;
 }
 
-int mx_execute_env_flags(t_env *env, char **args, int i, int *env_index) {
+int mx_execute_env_flags(t_env *env, char **args, int i, int *env_index) { // fix env -i env
     extern char **environ;
 
     if (env->comm != NULL && mx_strcmp(args[i],env->comm) != 0)
