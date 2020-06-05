@@ -4,7 +4,11 @@ static char *tidle_check(char *input) {
     char *tmp= NULL;
     tmp = mx_strdup(input);
 
-    if (input[1] == '/' || input[1] == '\0') {
+    if (mx_isalpha(input[1])) {
+        mx_strdel(&input);
+        input = mx_replace_substr(tmp, "~", "/Users/");
+    }
+    else if (input[1] == '/' || input[1] == '\0') {
         mx_strdel(&input);
         input = mx_replace_substr(tmp, "~", MX_HOME());
     }

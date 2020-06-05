@@ -2,11 +2,13 @@
 
 static void executing(t_ush *ush) {
     t_queue **queue = NULL;
+
     if (ush->command != NULL && strlen(ush->command) > 0) {
         queue = mx_parsing(ush->command);
         ush->return_value = mx_push_execute_queue(queue, ush);
     }
-    mx_strdel(&ush->command);
+    //
+    // mx_strdel(&ush->command);
     free(queue);
 
 }
@@ -53,6 +55,7 @@ static void free_history(t_dbl_list *history) {
 ////
 int main(int argc, char **argv){
     t_ush *ush = mx_create_ush(argc, argv);
+    int return_val = 0;
     set_shlvl();
     while(1) {
         signal(SIGINT, sigint);
@@ -60,15 +63,17 @@ int main(int argc, char **argv){
         ush->command = mx_process_input(ush);
         executing(ush);
         mx_strdel(&ush->command);
+        system("leaks -q ush");
         if (ush->exit_status != -1 || ush->exit_non_term == 1)
             break;
-        system("leaks -q ush");
     }
     free_history(ush->history);
     mx_strdel(&ush->ush_path);
-    free(ush);
-    system("leaks -q ush");
     if (ush->exit_status != -1)
-        exit(ush->exit_status);
-    return ush->return_value;
+        return_val = ush->exit_status;
+    else
+        return_val = ush->return_value;
+    free(ush);
+    //system("leaks -q ush");
+    return return_val;
 }

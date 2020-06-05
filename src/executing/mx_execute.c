@@ -132,7 +132,7 @@ int mx_execute(t_ush *ush, char *str_input, int flag_redirect) {//добавит
         child_redirect(flag_redirect, redirect);
         child_execute(&return_, input, redirect->fd_return, ush);
     }
-    kill(pid, SIGKILL);
+    //kill(pid, SIGKILL);
     mx_strdel(&redirect->_stderr);
     mx_strdel(&redirect->_stdout);
     free(redirect);

@@ -6,8 +6,10 @@ int mx_push_execute_queue(t_queue **queue, t_ush *ush) {
     for (int i = 0; queue[i] != NULL; i++) {
         while (queue[i] != NULL) {
             status = mx_execute(ush, queue[i]->data, 0);
-            if (ush->exit_status != -1)
+            if (ush->exit_status != -1) {
+                mx_pop_front_queue(&queue[i]);
                 return status;
+            }
             if (status == 0 && queue[i]->operator == '&') {
                 mx_pop_front_queue(&queue[i]);
                 continue;
