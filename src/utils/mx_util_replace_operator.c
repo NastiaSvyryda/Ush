@@ -1,4 +1,4 @@
-#include <ush.h>
+#include "ush.h"
 
 char *mx_util_replace_operator(char *s) {
     char *temp = mx_strtrim(s);

@@ -1,4 +1,4 @@
-#include <ush.h>
+#include "ush.h"
 
 static void executing(t_ush *ush) {
     t_queue **queue = NULL;
@@ -7,57 +7,48 @@ static void executing(t_ush *ush) {
         queue = mx_parsing(ush->command);
         ush->return_value = mx_push_execute_queue(queue, ush);
     }
-    //
-    // mx_strdel(&ush->command);
+    mx_strdel(&ush->command);
     free(queue);
-
 }
 
-void sigint () {
-    //signal(SIGINT, sigint);
+static void sigint () {
     mx_printstr("\n");
 }
 
-static void set_shlvl(void) {
-    char *shlvl = mx_itoa(mx_atoi(MX_SHLVL()) + 1);
+static void set_shl(void) {
+    char *shlv = MX_SHLVL();
+    char *shlvl = mx_itoa(mx_atoi(shlv) + 1);
+    extern char **environ;
+    char cwd[PATH_MAX];
 
-    setenv("SHLVL", shlvl, 1);
+    if (getenv("PWD") == NULL) {
+        if (getcwd(cwd, sizeof(cwd)) != NULL)
+            setenv("PWD", cwd, 1);
+    }
+    if (getenv("SHLVL") == NULL)
+        setenv("SHLVL", "1", 1);
+    else
+        setenv("SHLVL", shlvl, 1);
+    if (getenv("_") == NULL)
+        setenv("_", "/usr/bin/env", 1);
     mx_strdel(&shlvl);
+    mx_strdel(&shlv);
 }
 
-static t_dbl_list *deletelem(t_dbl_list *lst) {
-    t_dbl_list *prev = lst->prev; // узел, предшествующий lst
-    t_dbl_list *next = lst->next; // узел, следующий за lst
-    if (prev != NULL)
-        prev->next = lst->next; // переставляем указатель
-    if (next != NULL)
-        next->prev = lst->prev; // переставляем указатель
-    mx_strdel(&lst->data);
-    free(lst); // освобождаем память удаляемого элемента
-    return(prev);
-}
-static void free_history(t_dbl_list *history) {
-    while (history->next != NULL)
-        history = history->next;
-    while (history != NULL) {
-        history = deletelem(history);
+static void argc_error(int argc, char **argv) {
+    if (argc > 1) {
+        fprintf(stderr, "ush: can't open input file: %s\n", argv[1]);
+        exit(127);
     }
 }
-////
-//static char *process_str(void) {// сделать обработку \ и enter перенос строки продолжение ввода
-//    // обработка в другом процессе () subshell
-//    char *str = mx_strnew(20);
-//
-//    scanf("%s", str);
-//    printf("%s", str);
-//    return str;
-//}
-////
+
 int main(int argc, char **argv){
-    t_ush *ush = mx_create_ush(argc, argv);
-    int return_val = 0;
-    set_shlvl();
-    while(1) {
+    t_ush *ush = NULL;
+
+    argc_error(argc, argv);
+    ush = mx_create_ush(argv);
+    set_shl();
+    while (1) {
         signal(SIGINT, sigint);
         signal(SIGTSTP, SIG_IGN);
         ush->command = mx_process_input(ush);
@@ -67,13 +58,10 @@ int main(int argc, char **argv){
         if (ush->exit_status != -1 || ush->exit_non_term == 1)
             break;
     }
-    free_history(ush->history);
+    mx_free_history(ush->history);
     mx_strdel(&ush->ush_path);
-    if (ush->exit_status != -1)
-        return_val = ush->exit_status;
-    else
-        return_val = ush->return_value;
     free(ush);
-    //system("leaks -q ush");
-    return return_val;
+    if (ush->exit_status != -1)
+        exit(ush->exit_status);
+    return ush->return_value;
 }

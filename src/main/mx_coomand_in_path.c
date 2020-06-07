@@ -15,7 +15,7 @@ static char *check_in_path(char *command, char **path) {
     return command_p;
 }
 
-char *mx_coomand_in_path(char *command, char *str_path) {
+char *mx_coomand_in_path(char *comm, char *str_path) {
     char **path = NULL;
     char *command_p = NULL;
     int paths = 0;
@@ -29,11 +29,11 @@ char *mx_coomand_in_path(char *command, char *str_path) {
                 path[0][i] = path[0][i + 5];
             path[0][i] = '\0';
         }
-        if (mx_strcmp(command, "/") != 0 && mx_get_char_index(command, '/') == -1)
-            command_p = check_in_path(command, path);
+        if (mx_strcmp(comm, "/") != 0 && mx_get_char_index(comm, '/') == -1)
+            command_p = check_in_path(comm, path);
         mx_free_void_arr((void **) path, paths);
     }
     if (command_p == NULL)
-        command_p = mx_strdup(command);
+        command_p = mx_strdup(comm);
     return command_p;
 }

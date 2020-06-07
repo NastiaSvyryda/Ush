@@ -1,4 +1,4 @@
-#include <ush.h>
+#include "ush.h"
 
 t_queue *mx_create_queue(char *data, char operation) {
     t_queue *new_node = NULL;

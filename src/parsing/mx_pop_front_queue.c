@@ -1,4 +1,4 @@
-#include <ush.h>
+#include "ush.h"
 
 void mx_pop_front_queue(t_queue **head) {
     t_queue *temp = NULL;
@@ -9,7 +9,8 @@ void mx_pop_front_queue(t_queue **head) {
         free((*head)->data);
         free(*head);
         *head = NULL;
-    } else {
+    }
+    else {
         temp = (*head)->next;
         free((*head)->data);
         free(*head);
