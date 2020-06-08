@@ -12,7 +12,7 @@ static char *previous_dir(void) {
     return prev_dir;
 }
 
-static char *handle_path(char *path, int i) {
+static char *handle_path(char *path, int i, int *flag_recursion) {
     char *value = NULL;
     char *tmp = NULL;
     char *pwd = MX_PWD();
@@ -23,11 +23,11 @@ static char *handle_path(char *path, int i) {
         else
             fprintf(stderr, "ush: cd: OLDPWD not set\n");
     }
-    else if (mx_strcmp(path, "..") == 0)
-        value = previous_dir();
     else if (mx_count_substr(path, "../") > 0) {
-        mx_printint(mx_count_substr(path, "../"));
-        for (int y = 0; y < mx_count_substr(path, "../") - 1; y ++) {
+        *flag_recursion = 1;
+        setenv("OLDPWD", pwd, 1);
+        //mx_printint(mx_count_substr(path, "../"));
+        for (int y = 0; y < mx_count_substr(path, "..") - 1; y ++) {
             value = previous_dir();
             if (chdir(value) != -1)
                 setenv("PWD", value, 1);
@@ -63,14 +63,14 @@ static void cd_print_error(char *arg, char *path) {
     }
 }
 
-static char *handle_path_value(char *arg) {
+static char *handle_path_value(char *arg, int *flag_recursion) {
     DIR *dp = NULL;
     char *path = NULL;
 
     if (arg[0] == '/')
         path = mx_strdup(arg);
     else
-        path = handle_path(arg, 0);
+        path = handle_path(arg, 0, flag_recursion);
     dp = opendir(path);
     if (dp != NULL) {
         closedir(dp);
@@ -82,7 +82,7 @@ static char *handle_path_value(char *arg) {
     return NULL;
 }
 
-char *mx_parse_cd_args(char **args, int *flag, int len) {
+char *mx_parse_cd_args(char **args, int *flag, int len, int *flag_recursion) {
     char *arg = NULL;
     int stop = 0;
 
@@ -98,7 +98,7 @@ char *mx_parse_cd_args(char **args, int *flag, int len) {
                 if ((*flag = mx_find_flag("Ps", args[i])) > 0)
                     continue;
             }
-            arg = handle_path_value(args[i]);
+            arg = handle_path_value(args[i], flag_recursion);
             break;
         }
     }

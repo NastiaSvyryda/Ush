@@ -47,7 +47,18 @@ typedef struct s_ush t_ush;
 typedef struct s_redirect t_redirect;
 typedef struct s_env t_env;
 typedef struct s_dbl_list t_dbl_list;
+typedef struct s_pid t_pid;
+typedef struct s_com_sub t_com_sub;
 
+struct s_com_sub {
+    int back_first;
+    int back_first_index;
+    int back_end;
+    int back_end_index;
+    int space;
+    int space_first_index;
+    int space_end_index;
+};
 
 struct s_queue {
     char *data;
@@ -86,14 +97,23 @@ struct s_ush {
     char *ush_path;
     int return_value;
     int exit_status;
-    int pid;
+    t_pid *pids;
+    char *str_input;
     int exit_non_term;
 };
 
+struct s_pid {
+    int num;
+    int index;
+    char *str;
+    struct s_pid *next;
+    struct s_pid *prev;
+};
 struct s_redirect {
     int fd_return[2];
     int fd_stdout[2];
     int fd_stderr[2];
+    int flag;
     char *_stdout;
     char *_stderr;
 };
@@ -119,7 +139,7 @@ int mx_ush(char **input, char *ush_path);
 int mx_find_flag(char *flags, char *arg);
 int mx_file_exist(char *path);
 int mx_check_symlink(char *arg, int flag, int link);
-char *mx_parse_cd_args(char **args, int *flag, int len);
+char *mx_parse_cd_args(char **args, int *flag, int len, int *flag_recursion);
 char *mx_parse_echo(char **args, int *flag_n);
 int mx_execute_env_flags(t_env *env, char **args, int i, int *env_index);
 void mx_free_env(t_env *env);
@@ -127,12 +147,12 @@ void mx_env_error(t_env *env, char **args, int i);
 char *mx_getenv(char *var);
 
 //Executing function
-int mx_execute(t_ush *ush, char *str_input, int flag_redirect, char *str_red);
+int mx_execute(t_ush *ush, char *str_input, int flag_redirect, char **str_red);
 int mx_push_execute_queue(t_queue **queue, t_ush *ush);
 char **mx_check_expansion(char *str_input, int ret_val);
 t_redirect *mx_create_redirect(void);
-void mx_parent_redirect(int flag_redir, t_redirect *redirect, int *return_);
-void mx_child_redirect(int flag_redirect, t_redirect *redirect);
+void mx_parent_redirect(t_redirect *redirect, int *return_);
+void mx_child_redirect(t_redirect *redirect);
 void mx_child_execute(int *ret_val, char **input, int *fd, t_ush *ush);
 
 //Input function
@@ -168,6 +188,13 @@ void mx_print_prompt(int flag, t_ush *ush);
 char **mx_util_strsplit_one(const char *s, char *c);
 char *mx_util_replace_operator(char *s);
 int mx_util_get_flag_index(const char *str, const char *sub);
+char *mx_util_strincpy(char *dst, const char *src, int first, int end);
+char *mx_util_strindup(const char *data, int first, int end);
+
+//Com sub
+char *mx_com_sub(char *data);
+void mx_com_sub_validation(char **data, t_ush *ush);
+t_com_sub* mx_create_com_sub();
 
 //History
 void mx_free_history(t_dbl_list *history);

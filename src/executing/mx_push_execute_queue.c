@@ -5,6 +5,7 @@ int mx_push_execute_queue(t_queue **queue, t_ush *ush) {
 
     for (int i = 0; queue[i] != NULL; i++) {
         while (queue[i] != NULL) {
+            mx_com_sub_validation(&queue[i]->data, ush);
             status = mx_execute(ush, queue[i]->data, 0, NULL);
             if (ush->exit_status != -1) {
                 mx_pop_front_queue(&queue[i]);

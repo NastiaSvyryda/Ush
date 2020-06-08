@@ -52,7 +52,7 @@ static char *fill_parsed_str(char *str, int *flag_n, int flag) {
 }
 
 static int echo_flag(char *arg, int *flag_n) {
-    int flag = 0;
+    int flag = 1;
 
     for (int y = 1; y < mx_strlen(arg); y++) {
         if (arg[y] == 'e' && flag != 2)
@@ -70,7 +70,7 @@ static int echo_flag(char *arg, int *flag_n) {
 }
 
 char *mx_parse_echo(char **args, int *flag_n) {
-    int flag = 0;
+    int flag = 1;
     char *str = NULL;
 
     for (int i = 1; i < mx_count_arr_el(args); i++) {

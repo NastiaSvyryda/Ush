@@ -58,7 +58,12 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	history/mx_free_history.c \
 	utils/mx_util_get_flag_index.c \
     utils/mx_util_replace_operator.c \
-    utils/mx_util_strsplit_one.c)
+    utils/mx_util_strsplit_one.c \
+    utils/mx_util_strincpy.c \
+    utils/mx_util_strindup.c \
+    com_sub/mx_com_sub.c \
+    com_sub/mx_com_sub_validation.c \
+    com_sub/mx_create_com_sub.c )
 
 OBJ = \
 	mx_cd.o \
@@ -106,7 +111,12 @@ OBJ = \
     mx_free_history.o \
     mx_util_get_flag_index.o \
     mx_util_replace_operator.o \
-    mx_util_strsplit_one.o
+    mx_util_strsplit_one.o \
+    mx_com_sub.o \
+    mx_com_sub_validation.o \
+    mx_create_com_sub.o \
+    mx_util_strincpy.o \
+    mx_util_strindup.o
 CC = clang
 
 CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic

@@ -30,6 +30,8 @@ t_ush* mx_create_ush(char **argv) {
     ush->exit_status = -1;
     ush->return_value = 0;
     ush->exit_non_term = 0;
+    ush->pids = NULL;
+    ush->str_input = NULL;
     ush->ush_path = find_ush_path(argv);
     ush->history = lst_create();
     return ush;

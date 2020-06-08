@@ -41,6 +41,19 @@ static void argc_error(int argc, char **argv) {
         exit(127);
     }
 }
+static void free_pids(t_pid *pids) {
+    t_pid *temp = NULL;
+    if(pids != NULL) {
+        while (pids->prev != NULL) {
+            temp = pids;
+            pids = pids->prev;
+            mx_strdel(&temp->str);
+            free(temp);
+        }
+        mx_strdel(&pids->str);
+        free(pids);
+    }
+}
 
 int main(int argc, char **argv){
     t_ush *ush = NULL;
@@ -60,6 +73,7 @@ int main(int argc, char **argv){
     }
     mx_free_history(ush->history);
     mx_strdel(&ush->ush_path);
+    free_pids(ush->pids);
     free(ush);
     if (ush->exit_status != -1)
         exit(ush->exit_status);

@@ -27,6 +27,23 @@ static void child_free(char *ret, char *command_p) {
     mx_strdel(&command_p);
 }
 
+int mx_fg(char **inpit, t_ush *ush) {///
+    int num = mx_count_arr_el(inpit);
+    int pid = 0;
+    //int status = 0;
+    num++;
+    if (ush->pids != NULL) {
+        pid = ush->pids->num;
+        kill(pid, SIGCONT);
+        //waitpid(ush->pids->num, &status, WUNTRACED);
+        t_pid *temp = ush->pids;
+        ush->pids = ush->pids->prev;
+        mx_strdel(&ush->pids->str);
+        free(temp);
+    }
+    return 0;
+}
+
 void mx_child_execute(int *ret_val, char **input, int *fd, t_ush *ush) {
     char *command_p = mx_coomand_in_path(input[0], MX_PATH());
     int command = mx_is_builtin(command_p);
@@ -42,6 +59,8 @@ void mx_child_execute(int *ret_val, char **input, int *fd, t_ush *ush) {
         *ret_val = mx_which(input);
     else if (command == 9)
         *ret_val = mx_echo(input);
+    else if (command == 10)
+        *ret_val = mx_fg(input, ush);
     else if (command == 0)
         child_not_builtin(ret_val, input, command_p);
     ret = mx_itoa(*ret_val);
