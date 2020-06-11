@@ -1,4 +1,4 @@
-#include <ush.h>
+#include "ush.h"
 
 void mx_write_to_pipe(char *str, int *fd) {
     close(fd[0]);

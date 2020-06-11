@@ -1,65 +1,26 @@
-#include <ush.h>
+#include "ush.h"
 
 static t_input *init_input() {
-    t_input *input = (t_input *)malloc(sizeof(t_input));
+    t_input *input = (t_input *) malloc(sizeof (t_input));
 
-    input->arrow_press = 0;
-    input->num_backspace = 0;
     input->len = 0;
-    input->command = mx_strnew(1000);//?
+    input->command = mx_strnew(1);//?
     input->ctrl_c = 0;
-    input->enter = 0;
     input->coursor_position = 0;
     input->input_ch = '\0';
     input->input_ch_arr = (char *)&input->input_ch;
     return input;
 }
 
-static int mx_getch(t_input *input) {
-    int size = 0;
 
-    size = read(0, &input->input_ch, 4);
-    return size;
-}
-
-//int mx_get_twidth() {
-//    if (tgetent(NULL, "xterm-256color") < 0) {
-//        fprintf(stderr, "ush: Could not access the termcap data base.\n");
-//        exit(1);
-//    }
-//    return tgetnum("co");
-//}
-static int winsize(void) {
-    struct winsize wins;
-    int err = ioctl(0, TIOCGWINSZ, &wins);//заменить запрет функция
-
-    if (err == -1)
-        return 0;
-    return wins.ws_col;
-}
-
-static t_dbl_list *addelem(t_dbl_list *history) {
-    t_dbl_list *temp, *p;
-
-    temp = (t_dbl_list *)malloc(sizeof(t_dbl_list));
-    p = history->next; // сохранение указателя на следующий узел
-    history->next = temp; // предыдущий узел указывает на создаваемый
-    temp->next = p; // созданный узел указывает на следующий узел
-    temp->prev = history; // созданный узел указывает на предыдущий узел
-    temp->data = NULL;
-    if (p != NULL)
-        p->prev = temp;
-    return temp;
-}
-
-static char *inside_cycle(t_input *input, int *flag, t_ush *ush, char *ret_str) {
+static char *inside_cycle(t_input *input, int *flag, t_ush *ush, char *str) {
     int k = 0;
     int i = mx_getch(input);
 
     while (k < i) {
         input->input_ch = input->input_ch_arr[k];
         if (input->input_ch <= 127 && input->input_ch != 27) {
-            ret_str = mx_input_ascii(input, ush);
+            str = mx_input_ascii(input, ush);
             if (ush->exit_status != -1)
                 break;
         }
@@ -71,37 +32,9 @@ static char *inside_cycle(t_input *input, int *flag, t_ush *ush, char *ret_str) 
             break;
         k++;
     }
-    return ret_str;
+    return str;
 }
 
-static char *add_history(t_input *input, int *flag, t_ush *ush, char *temp) {
-    if (ush->history->data != NULL) {
-        if (ush->history->next != NULL && *flag == 0) {
-            *flag = 1;
-            mx_strdel(&temp);
-            temp = mx_strdup(ush->history->data);
-        }
-        mx_strdel(&ush->history->data);
-    }
-    ush->history->data = mx_strdup(input->command);
-    return temp;
-}
-
-static void sort_history(t_ush *ush, char *temp) {
-    char *p = mx_strdup(ush->history->data);
-
-    mx_strdel(&ush->history->data);
-    ush->history->data = mx_strdup(temp);
-    while (ush->history->next != NULL)
-        ush->history = ush->history->next;
-    ush->history->data = p;
-}
-
-static void free_step(t_input *input, char *temp) {
-    mx_strdel(&temp);
-    mx_strdel(&input->command);
-    free(input);
-}
 
 static char *read_str(struct termios savetty, t_ush *ush) {
     char *ret_str = NULL;
@@ -110,17 +43,18 @@ static char *read_str(struct termios savetty, t_ush *ush) {
     t_input *input = init_input();
 
     input->savetty = savetty;
-    input->term_width = winsize();
-    while (input->input_ch != '\r' && input->ctrl_c != 1 && input->term_width != 0) {
+    input->term_width = mx_get_twidth();
+    while (input->input_ch != '\r' && input->ctrl_c != 1
+            && input->term_width != 0) {
         ret_str = inside_cycle(input, &flag, ush, ret_str);
         if (ush->exit_status != -1)
             break;
         if (input->len > 0)
-            temp = add_history(input, &flag, ush, temp);
+            temp = mx_add_history(input, &flag, ush, temp);
     }
     if (ush->history->next != NULL)
-        sort_history(ush, temp);
-    free_step(input, temp);
+        mx_sort_history(ush, temp);
+    mx_free_step(input, temp);
     mx_printstr("\n");
     return ret_str;
 }
@@ -130,9 +64,8 @@ char *mx_process_input(t_ush *ush) {
     struct termios savetty;
     size_t bufsize = 32;
     char *buffer = NULL;
-    //t_dbl_list *temp = NULL;
+
     if (!isatty(0)) {
-        //buffer = (char *)malloc(bufsize * sizeof(char));
         getline(&buffer,&bufsize,stdin);
         str = mx_strndup(buffer, mx_strlen(buffer) - 1);
         ush->exit_non_term = 1;
@@ -145,6 +78,6 @@ char *mx_process_input(t_ush *ush) {
         set_canonic(savetty);
     }
     if (ush->history->data != NULL)
-        ush->history = addelem(ush->history);
+        ush->history = mx_addelem(ush->history);
     return str;
 }

@@ -1,4 +1,4 @@
-#include <ush.h>
+#include "ush.h"
 
 int mx_count_queue_operation(const char *arr) {
     int counter = 0;

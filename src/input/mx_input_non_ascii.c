@@ -25,7 +25,8 @@ static void up_arrow(t_input *input, t_ush *ush) {
             input->command = mx_strdup(ush->history->data);
             mx_printstr(input->command);
         }
-        input->num_backspace = input->coursor_position = input->len = mx_strlen(input->command);
+        input->coursor_position = mx_strlen(input->command);
+        input->len = mx_strlen(input->command);
     }
 }
 
@@ -39,7 +40,8 @@ static void down_arrow(t_input *input, t_ush *ush) {
             input->command = mx_strdup(ush->history->data);
             mx_printstr(input->command);
         }
-        input->num_backspace = input->coursor_position = input->len = mx_strlen(input->command);
+        input->coursor_position = mx_strlen(input->command);
+        input->len = mx_strlen(input->command);
     }
 }
 void mx_input_non_ascii(t_input *input, t_ush *ush) {

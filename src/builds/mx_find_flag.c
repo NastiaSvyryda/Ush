@@ -1,4 +1,4 @@
-#include <ush.h>
+#include "ush.h"
 
 int mx_find_flag(char *flags, char *arg) {
     int flag = 0;

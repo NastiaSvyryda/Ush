@@ -1,6 +1,6 @@
-#include <ush.h>
+#include "ush.h"
 
-int mx_check_symlink(char *arg, int flag, int link) { // malloc error somethimes check
+int mx_check_symlink(char *arg, int flag, int link) {
     struct stat *st = (struct stat *) malloc(sizeof (struct stat));
     int is_link = 0;
     char buf[1024];

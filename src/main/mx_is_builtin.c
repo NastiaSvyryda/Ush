@@ -1,4 +1,4 @@
-#include <ush.h>
+#include "ush.h"
 
 static int is_built(char *command) {
     if (strcmp("cd", command) == 0)
@@ -9,10 +9,12 @@ static int is_built(char *command) {
         return 9;
     return 0;
 }
+
 int mx_is_builtin(char *command) {
-    char builtins[][20] = {"/usr/bin/cd", "/bin/pwd", "/usr/bin/env", "ush", "export",
-                           "unset", "exit", "/usr/bin/which", "/bin/echo", "history"};
     int num = 0;
+    char builtins[][20] = {"/usr/bin/cd", "/bin/pwd", "/usr/bin/env",
+                           "ush", "export", "unset", "exit",
+                           "/usr/bin/which", "/bin/echo", "/usr/bin/fg"};
 
     for (int i = 0; i < mx_strlen(command); i++)
         command[i] = (char)mx_tolower(command[i]);

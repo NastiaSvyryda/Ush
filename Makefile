@@ -28,12 +28,18 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	builds/mx_parse_echo.c\
 	builds/mx_execute_env_flags.c\
 	builds/mx_free_env.c\
+	builds/mx_env_error.c\
+	builds/mx_getenv.c\
+	builds/mx_handle_path.c \
+	builds/mx_parse_env_args.c\
 	input/mx_process_input.c \
 	input/mx_input_ascii.c \
 	input/mx_input_non_ascii.c \
 	input/mx_set_non_canonic.c \
 	input/mx_fill_command.c \
-	input/mx_moving_coursor_str.c \
+	input/mx_get_twidth.c \
+	input/mx_getch.c \
+	input/mx_move_coursor.c \
     parsing/mx_count_queue_operation.c \
     parsing/mx_create_queue.c \
     parsing/mx_insort_t_queue.c \
@@ -44,14 +50,24 @@ SRC = $(addprefix $(SRC_DIR)/,\
 	executing/mx_execute.c \
 	executing/mx_push_execute_queue.c \
 	executing/mx_check_expansion.c \
+	executing/mx_create_redirect.c\
+	executing/mx_child_execute.c\
 	main/mx_coomand_in_path.c \
 	main/mx_create_ush.c \
 	main/mx_is_builtin.c \
 	main/mx_use_pipe.c \
 	main/main.c \
+	history/mx_free_history.c \
 	utils/mx_util_get_flag_index.c \
     utils/mx_util_replace_operator.c \
-    utils/mx_util_strsplit_one.c)
+    utils/mx_util_strsplit_one.c \
+    utils/mx_util_strincpy.c \
+    utils/mx_util_strindup.c \
+    com_sub/mx_com_sub.c \
+    com_sub/mx_com_sub_back.c \
+    com_sub/mx_com_sub_free.c \
+    com_sub/mx_com_sub_space.c \
+    com_sub/mx_create_com_sub.c )
 
 OBJ = \
 	mx_cd.o \
@@ -67,14 +83,20 @@ OBJ = \
     mx_find_flag.o\
     mx_parse_echo.o\
     mx_execute_env_flags.o\
+    mx_getenv.o\
+    mx_env_error.o\
     mx_free_env.o\
+    mx_handle_path.o\
+    mx_parse_env_args.o\
     mx_file_exist.o\
     mx_process_input.o \
     mx_input_ascii.o \
     mx_input_non_ascii.o \
     mx_set_non_canonic.o \
     mx_fill_command.o \
-    mx_moving_coursor_str.o \
+    mx_get_twidth.o \
+    mx_getch.o \
+    mx_move_coursor.o \
     mx_count_queue_operation.o \
     mx_create_queue.o \
     mx_insort_t_queue.o \
@@ -85,17 +107,27 @@ OBJ = \
     mx_execute.o \
     mx_push_execute_queue.o \
     mx_check_expansion.o \
+    mx_create_redirect.o \
+    mx_child_execute.o \
     mx_coomand_in_path.o \
     mx_create_ush.o \
     mx_is_builtin.o \
     mx_use_pipe.o \
     main.o \
+    mx_free_history.o \
     mx_util_get_flag_index.o \
     mx_util_replace_operator.o \
-    mx_util_strsplit_one.o
+    mx_util_strsplit_one.o \
+    mx_com_sub.o \
+    mx_com_sub_back.o \
+    mx_com_sub_free.o \
+    mx_com_sub_space.o \
+    mx_create_com_sub.o \
+    mx_util_strincpy.o \
+    mx_util_strindup.o
 CC = clang
 
-CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic
+CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic #-fsanitize=address
 
 all : install
 
