@@ -15,26 +15,6 @@ static void sigint () {
     mx_printstr("\n");
 }
 
-static void set_shl(void) {
-    char *shlv = MX_SHLVL();
-    char *shlvl = mx_itoa(mx_atoi(shlv) + 1);
-    extern char **environ;
-    char cwd[PATH_MAX];
-
-    if (getenv("PWD") == NULL) {
-        if (getcwd(cwd, sizeof(cwd)) != NULL)
-            setenv("PWD", cwd, 1);
-    }
-    if (getenv("SHLVL") == NULL)
-        setenv("SHLVL", "1", 1);
-    else
-        setenv("SHLVL", shlvl, 1);
-    if (getenv("_") == NULL)
-        setenv("_", "/usr/bin/env", 1);
-    mx_strdel(&shlvl);
-    mx_strdel(&shlv);
-}
-
 static void argc_error(int argc, char **argv) {
     if (argc > 1) {
         fprintf(stderr, "ush: can't open input file: %s\n", argv[1]);
@@ -43,6 +23,7 @@ static void argc_error(int argc, char **argv) {
 }
 static void free_pids(t_pid *pids) {
     t_pid *temp = NULL;
+
     if(pids != NULL) {
         while (pids->prev != NULL) {
             temp = pids;
@@ -60,13 +41,12 @@ int main(int argc, char **argv){
 
     argc_error(argc, argv);
     ush = mx_create_ush(argv);
-    set_shl();
+    mx_set_shl();
     while (1) {
         signal(SIGINT, sigint);
         signal(SIGTSTP, SIG_IGN);
         ush->command = mx_process_input(ush);
         executing(ush);
-        mx_strdel(&ush->command);
         system("leaks -q ush");
         if (ush->exit_status != -1 || ush->exit_non_term == 1)
             break;

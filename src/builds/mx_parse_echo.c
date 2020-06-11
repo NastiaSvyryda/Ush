@@ -30,7 +30,7 @@ static int quot_error(char **parse_str, int *flag_n, int flag_quot) {
 }
 
 static char *fill_parsed_str(char *str, int *flag_n, int flag) {
-    char *parse_str = mx_strnew(100);
+    char *parse_str = mx_strnew(1000);
     int flag_quot = 1;
     int index = 0;
 

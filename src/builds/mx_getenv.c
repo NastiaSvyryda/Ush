@@ -1,20 +1,25 @@
 #include "ush.h"
-
-char *mx_getenv(char *var) {
+static char *cwd() {
     char *cwd = NULL;
 
-    if (strcmp(var, "PWD") == 0) {
-        if ((cwd = mx_strdup(getenv("PWD"))) == NULL)
-            cwd = getcwd(NULL, 0);
-        if(cwd == NULL)
-            perror("getcwd() error");
-        return cwd;
-    }
-    if (strcmp(var, "HOME") == 0) {
-        struct passwd *pw = getpwuid(getuid());
-        char *homedir = mx_strdup(pw->pw_dir);
-        return homedir;
-    }
+    if ((cwd = mx_strdup(getenv("PWD"))) == NULL)
+        cwd = getcwd(NULL, 0);
+    if (cwd == NULL)
+        perror("getcwd() error");
+    return cwd;
+}
+static char *homedir() {
+    struct passwd *pw = getpwuid(getuid());
+    char *homedir = mx_strdup(pw->pw_dir);
+
+    return homedir;
+}
+
+char *mx_getenv(char *var) {
+    if (strcmp(var, "PWD") == 0)
+        return cwd();
+    if (strcmp(var, "HOME") == 0)
+        return homedir();
     if (strcmp(var, "SHLVL") == 0) {
         if (getenv("SHLVL") == NULL)
             return mx_strdup("1");

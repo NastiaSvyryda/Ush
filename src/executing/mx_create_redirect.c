@@ -1,10 +1,17 @@
 #include "ush.h"
 
-t_redirect *mx_create_redirect(void) {
+void mx_free_execute(t_redirect *redirect, char **input) {
+    mx_strdel(&redirect->_stderr);
+    mx_strdel(&redirect->_stdout);
+    free(redirect);
+    mx_free_void_arr((void**)input, mx_count_arr_el(input));
+}
+
+t_redirect *mx_create_redirect(int flag_redir) {
     t_redirect *redirect = (t_redirect *)malloc(sizeof(t_redirect));
     redirect->_stderr = mx_strnew(1000);///
     redirect->_stdout = mx_strnew(1000);///
-    redirect->flag = 0;
+    redirect->flag = flag_redir;
     pipe(redirect->fd_return);
     pipe(redirect->fd_stdout);
     pipe(redirect->fd_stderr);

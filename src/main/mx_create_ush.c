@@ -36,3 +36,25 @@ t_ush* mx_create_ush(char **argv) {
     ush->history = lst_create();
     return ush;
 }
+void mx_set_shl(void) {
+    char *shlv = MX_SHLVL();
+    char *shlvl = mx_itoa(mx_atoi(shlv) + 1);
+    extern char **environ;
+    char cwd[PATH_MAX];
+
+    if (getenv("PWD") == NULL) {
+        if (getcwd(cwd, sizeof(cwd)) != NULL)
+            setenv("PWD", cwd, 1);
+    }
+    if (getenv("PATH") == NULL) {
+        setenv("PATH", MX_PATH(), 1);
+    }
+    if (getenv("SHLVL") == NULL)
+        setenv("SHLVL", "1", 1);
+    else
+        setenv("SHLVL", shlvl, 1);
+    if (getenv("_") == NULL)
+        setenv("_", "/usr/bin/env", 1);
+    mx_strdel(&shlvl);
+    mx_strdel(&shlv);
+}

@@ -30,6 +30,7 @@
 #define MX_DOWN_ARROW 66
 #define MX_ENTER 13
 #define MX_BACKSPACE 127
+#define MX_TAB 9
 
 #define MX_ENV_US "env: option requires an argument -- %c\nusage: env [-i] \
 [-P utilpath] [-u name]\n           \
@@ -58,6 +59,11 @@ struct s_com_sub {
     int space;
     int space_first_index;
     int space_end_index;
+    char *temp_str;
+    char *temp_data;
+    char *cout_execute;
+    char *temp_join;
+    int status;
 };
 
 struct s_queue {
@@ -100,6 +106,7 @@ struct s_ush {
     t_pid *pids;
     char *str_input;
     int exit_non_term;
+    int curr_pid;
 };
 
 struct s_pid {
@@ -124,6 +131,7 @@ int mx_is_builtin(char *command);
 void mx_write_to_pipe(char *str, int *fd);
 void mx_read_from_pipe(char *str, int len, int *fd);
 char *mx_coomand_in_path(char *command, char *str_path);
+void mx_set_shl(void);
 
 //Builds function
 int mx_pwd(char **args);
@@ -135,6 +143,7 @@ int mx_exit(char **inp, int *exit_status);
 int mx_echo(char **args);
 int mx_which(char **input);
 int mx_ush(char **input, char *ush_path);
+int mx_fg(t_ush *ush);
 
 int mx_find_flag(char *flags, char *arg);
 int mx_file_exist(char *path);
@@ -145,15 +154,18 @@ int mx_execute_env_flags(t_env *env, char **args, int i, int *env_index);
 void mx_free_env(t_env *env);
 void mx_env_error(t_env *env, char **args, int i);
 char *mx_getenv(char *var);
+t_env *mx_parse_env_args(char **args);
+char *mx_handle_path(char *path, int i, int *fl_rec);
 
 //Executing function
-int mx_execute(t_ush *ush, char *str_input, int flag_redirect, char **str_red);
+int mx_execute(t_ush *ush, char *str_input, int flag_redir, char **str_red);
 int mx_push_execute_queue(t_queue **queue, t_ush *ush);
 char **mx_check_expansion(char *str_input, int ret_val);
-t_redirect *mx_create_redirect(void);
+t_redirect *mx_create_redirect(int flag_redir);
 void mx_parent_redirect(t_redirect *redirect, int *return_);
 void mx_child_redirect(t_redirect *redirect);
-void mx_child_execute(int *ret_val, char **input, int *fd, t_ush *ush);
+void mx_child_execute(int *ret, char **input, t_redirect *red, t_ush *ush);
+void mx_free_execute(t_redirect *redirect, char **input);
 
 //Input function
 void mx_clear_str();
@@ -192,9 +204,11 @@ char *mx_util_strincpy(char *dst, const char *src, int first, int end);
 char *mx_util_strindup(const char *data, int first, int end);
 
 //Com sub
-char *mx_com_sub(char *data);
-void mx_com_sub_validation(char **data, t_ush *ush);
 t_com_sub* mx_create_com_sub();
+int mx_com_sub_space(char **data, t_com_sub *c, t_ush *ush, int i);
+int mx_com_sub_back(char **data, t_com_sub *c, t_ush *ush, int i);
+void mx_com_sub(char **data, t_ush *ush);
+void mx_com_sub_free(t_com_sub *com_sub);
 
 //History
 void mx_free_history(t_dbl_list *history);
