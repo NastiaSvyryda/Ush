@@ -3,7 +3,7 @@ static char *cwd() {
     char *cwd = NULL;
 
     if ((cwd = mx_strdup(getenv("PWD"))) == NULL
-        || mx_file_exist(getenv("PWD"))) {
+        || !mx_file_exist(getenv("PWD"))) {
         cwd = getcwd(NULL, 0);
     }
     if (cwd == NULL)
