@@ -2,8 +2,10 @@
 static char *cwd() {
     char *cwd = NULL;
 
-    if ((cwd = mx_strdup(getenv("PWD"))) == NULL)
+    if ((cwd = mx_strdup(getenv("PWD"))) == NULL
+        || mx_file_exist(getenv("PWD"))) {
         cwd = getcwd(NULL, 0);
+    }
     if (cwd == NULL)
         perror("getcwd() error");
     return cwd;
@@ -32,7 +34,7 @@ char *mx_getenv(char *var) {
     }
     if (strcmp(var, "PATH") == 0) {
         if (getenv("PATH") == NULL)
-            return "/Users/asvyryda/.brew/bin:/bin:/usr/bin:/usr/ucb:/usr/local/bin";
+            return "/bin:/usr/bin:/usr/ucb:/usr/local/bin";
         return getenv("PATH");
     }
     return NULL;
