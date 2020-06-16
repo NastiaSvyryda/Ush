@@ -2,9 +2,11 @@
 
 static char *homedir() {
     struct passwd *pw = getpwuid(getuid());
-    char *homedir = mx_strdup(pw->pw_dir);
 
-    return homedir;
+    if (getenv("HOME") == NULL)
+        return mx_strdup(pw->pw_dir);
+
+    return mx_strdup(getenv("HOME"));
 }
 
 char *mx_getenv(char *var) {

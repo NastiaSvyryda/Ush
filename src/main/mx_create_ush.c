@@ -43,8 +43,12 @@ void mx_set_shl(void) {
     extern char **environ;
     char cwd[PATH_MAX];
 
+    if (getenv("HOME") == NULL)
+        setenv("HOME", MX_HOME(), 1);
     if (getcwd(cwd, sizeof(cwd)) != NULL)
         setenv("PWD", cwd, 1);
+    if (getenv("OLDPWD") == NULL)
+        setenv("OLDPWD", MX_PWD(), 1);
     if (getenv("PATH") == NULL)
         setenv("PATH", MX_PATH(), 1);
     if (getenv("SHLVL") == NULL)
