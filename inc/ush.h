@@ -108,6 +108,7 @@ struct s_ush {
     int exit_non_term;
     int curr_pid;
     char *pwd_l;
+    char *pwd;
 };
 
 struct s_pid {
@@ -143,7 +144,6 @@ int mx_unset(char **args);
 int mx_exit(char **inp, int *exit_status);
 int mx_echo(char **args);
 int mx_which(char **input);
-int mx_ush(char **input, char *ush_path);///
 
 int mx_find_flag(char *flags, char *arg);
 int mx_file_exist(char *path);
@@ -154,7 +154,7 @@ void mx_free_env(t_env *env);
 void mx_env_error(t_env *env, char **args, int i);
 char *mx_getenv(char *var);
 t_env *mx_parse_env_args(char **args, t_ush *ush);
-int mx_make_path(char *path, t_ush *ush);
+int mx_make_path(char *path, t_ush *ush, int flag);
 void mx_setenv_ush(char *arg, t_ush *ush);
 
 //Executing function

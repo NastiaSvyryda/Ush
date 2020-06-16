@@ -3,17 +3,16 @@
 void mx_setenv_ush(char *arg, t_ush *ush) {
     if (mx_strlen(arg) != 1 && arg[mx_strlen(arg) - 1] == '/')
         arg[mx_strlen(arg) - 1] = '\0';
-    mx_strdel(&ush->pwd_l);
-    ush->pwd_l = mx_strdup(arg);
+    if (mx_strcmp(arg, ush->pwd_l) != 0) {
+        mx_strdel(&ush->pwd_l);
+        ush->pwd_l = mx_strdup(arg);
+    }
     setenv("PWD", arg, 1);
 }
 
 static void oldpwd(t_ush *ush) {
-    char *pwd = MX_PWD();
-
     mx_setenv_ush(MX_OLDPWD(), ush);
-    setenv("OLDPWD", pwd, 1);
-    mx_strdel(&pwd);
+    setenv("OLDPWD", ush->pwd_l, 1);
 }
 
 static int handle_path(char *path, int flag, t_ush *ush) {
@@ -34,18 +33,16 @@ static int handle_path(char *path, int flag, t_ush *ush) {
         }
     }
     else
-        ret = mx_make_path(tmp, ush);
+        ret = mx_make_path(tmp, ush, flag);
     mx_strdel(&tmp);
     return ret;
 }
 
 static void stay_here(t_ush *ush) {
     char *arg = MX_HOME();
-    char *pwd = MX_PWD();
 
-    setenv("OLDPWD", pwd, 1);
+    setenv("OLDPWD", ush->pwd_l, 1);
     mx_setenv_ush(arg, ush);
-    mx_strdel(&pwd);
     mx_strdel(&arg);
 }
 

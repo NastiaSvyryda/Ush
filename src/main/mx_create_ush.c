@@ -43,18 +43,15 @@ void mx_set_shl(void) {
     extern char **environ;
     char cwd[PATH_MAX];
 
-    if (getenv("PWD") == NULL) {
-        if (getcwd(cwd, sizeof(cwd)) != NULL)
-            setenv("PWD", cwd, 1);
-    }
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+        setenv("PWD", cwd, 1);
     if (getenv("PATH") == NULL)
         setenv("PATH", MX_PATH(), 1);
     if (getenv("SHLVL") == NULL)
         setenv("SHLVL", "1", 1);
     else
         setenv("SHLVL", shlvl, 1);
-    if (getenv("_") == NULL)
-        setenv("_", "/usr/bin/env", 1);
+    setenv("_", "/usr/bin/env", 1);
     mx_strdel(&shlvl);
     mx_strdel(&shlv);
 }
