@@ -1,17 +1,5 @@
 #include "ush.h"
 
-//static char *cwd() {
-//    char *cwd = NULL;
-//
-//    if ((cwd = mx_strdup(getenv("PWD"))) == NULL
-//        || !mx_file_exist(getenv("PWD"))) {
-//        cwd = getcwd(NULL, 0);
-//    }
-//    if (cwd == NULL)
-//        perror("getcwd() error");
-//    return cwd;
-//}
-
 static char *homedir() {
     struct passwd *pw = getpwuid(getuid());
     char *homedir = mx_strdup(pw->pw_dir);

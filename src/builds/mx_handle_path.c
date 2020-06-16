@@ -41,7 +41,7 @@ static char *absolute_path(char *path) {
     return value;
 }
 
-static int create_new_path(char **tokens, char *path, char *pwd) {
+static int create_new_path(char **tokens, char *path, char *pwd, t_ush *ush) {
     char *value = NULL;
 
     for (int y = 0; tokens[y] != NULL; y++) {
@@ -52,9 +52,9 @@ static int create_new_path(char **tokens, char *path, char *pwd) {
         else
             value = absolute_path(tokens[y]);
         if (chdir(value) != -1)
-            mx_setenv_ush(value);
+            mx_setenv_ush(value, ush);
         else {
-            setenv("PWD", pwd, 1);
+            mx_setenv_ush(pwd, ush);
             cd_print_error(path);
             mx_strdel(&value);
             return 1;
@@ -64,17 +64,17 @@ static int create_new_path(char **tokens, char *path, char *pwd) {
     return 0;
 }
 
-int mx_make_path(char *path) {
+int mx_make_path(char *path, t_ush *ush) {
     char *pwd = MX_PWD();
     char **tokens = mx_strsplit(path, '/');
     int ret = 0;
 
     if (path[0] == '/') {
         chdir("/");
-        setenv("PWD", "/", 1);
+        mx_setenv_ush("/", ush);
     }
     if (tokens != NULL)
-        ret = create_new_path(tokens, path, pwd);
+        ret = create_new_path(tokens, path, pwd, ush);
     setenv("OLDPWD", pwd, 1);
     mx_strdel(&pwd);
     mx_del_strarr(&tokens);

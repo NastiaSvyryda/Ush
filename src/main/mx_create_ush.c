@@ -34,6 +34,7 @@ t_ush* mx_create_ush(char **argv) {
     ush->str_input = NULL;
     ush->ush_path = find_ush_path(argv);
     ush->history = lst_create();
+    ush->pwd_l = MX_PWD();
     return ush;
 }
 void mx_set_shl(void) {

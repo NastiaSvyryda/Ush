@@ -47,7 +47,7 @@ static int check_flag(char **args, int i, t_env *env) {//
     return 1;
 }
 
-static void create_command(t_env *env, char *arg) {
+static void create_command(t_env *env, char *arg, t_ush *ush) {
     int y = 0;
     char *temp = NULL;
 
@@ -59,14 +59,16 @@ static void create_command(t_env *env, char *arg) {
         }
         mx_strdel(&temp);
     }
-    if (env->env_var[y] == NULL)
+    if (mx_count_substr(arg, "ush") > 0)
+        env->comm = mx_strdup(ush->ush_path);
+    else if (env->env_var[y] == NULL)
         env->comm = mx_coomand_in_path(arg, MX_PATH());
     else
         env->comm = mx_coomand_in_path(arg, env->env_var[y]);
 }
 
 
-t_env *mx_parse_env_args(char **args) {
+t_env *mx_parse_env_args(char **args, t_ush *ush) {
     t_env *env = create_env();
     int len = mx_count_arr_el(args);
     int env_index = 0;
@@ -76,7 +78,7 @@ t_env *mx_parse_env_args(char **args) {
             break;
         else if (check_flag(args, i, env) == 0)
             continue;
-        create_command(env, args[i]);
+        create_command(env, args[i], ush);
         if (mx_execute_env_flags(env, args, i, &env_index) == -1)
             break;
         if (env != NULL)

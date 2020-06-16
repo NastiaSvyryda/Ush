@@ -37,17 +37,18 @@ void mx_child_execute(int *ret, char **input, t_redirect *red, t_ush *ush) {
 
     mx_child_redirect(red);
     if (command == 2)
-        *ret = mx_pwd(input);
+        *ret = mx_pwd(input, ush);
     else if (command == 3)
         *ret = mx_env(input, ush);
-    else if (command == 4)
-        *ret = mx_ush(input, ush->ush_path);
     else if (command == 8)
         *ret = mx_which(input);
     else if (command == 9)
         *ret = mx_echo(input);
-    else if (command == 0)
+    else if (command == 0 || command == 4) {
+        mx_strdel(&input[0]);
+        input[0] = mx_strdup(ush->ush_path);
         child_not_builtin(ret, input, command_p);
+    }
     child_free(command_p, red->fd_return, *ret);
     exit(0);
 }
