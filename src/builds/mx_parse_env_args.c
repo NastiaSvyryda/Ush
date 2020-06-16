@@ -59,9 +59,9 @@ static void create_command(t_env *env, char *arg, t_ush *ush) {
         }
         mx_strdel(&temp);
     }
-    if (mx_count_substr(arg, "ush") > 0)
+    if (mx_strcmp(arg, "ush") == 0 || mx_strcmp(arg, "./ush") == 0)
         env->comm = mx_strdup(ush->ush_path);
-    else if (env->env_var[y] == NULL)
+    if (env->env_var[y] == NULL)
         env->comm = mx_coomand_in_path(arg, MX_PATH());
     else
         env->comm = mx_coomand_in_path(arg, env->env_var[y]);

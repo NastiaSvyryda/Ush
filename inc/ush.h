@@ -164,7 +164,7 @@ char **mx_check_expansion(char *str_input, int ret_val);
 t_redirect *mx_create_redirect(int flag_redir);
 void mx_parent_redirect(t_redirect *redirect, int *return_);
 void mx_child_redirect(t_redirect *redirect);
-void mx_child_execute(int *ret, char **input, t_redirect *red, t_ush *ush);
+void mx_child_execute(int *ret, char **inp, t_redirect *red, t_ush *ush);
 void mx_free_execute(t_redirect *redirect, char **input);
 int mx_check_echo(char **n);
 char **mx_split_echo(char *str_input, int check);
